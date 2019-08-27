@@ -38,17 +38,23 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge :show="showRecharge" @setState="handleShowRecharge" />
+    <Recharge :show="showRecharge" @setState="handleShowRecharge" @showError="showErrorMsg" />
 
     <!--弹窗 玩法介绍-->
-    <PlayIntroduce :show="showPlayIntroduce" @setState="handleShowPLayIntroduce" />
+    <PlayIntroduce
+      :show="showPlayIntroduce"
+      @setState="handleShowPLayIntroduce"
+      @showError="showErrorMsg"
+    />
 
     <!--弹窗 金币兑换-->
-    <Exchange :show="showExchange" @setState="handleShowExchange" />
+    <Exchange :show="showExchange" @setState="handleShowExchange" @showError="showErrorMsg" />
 
     <!--弹窗 登录注册-->
-    <Login :show="showLogin" @setState="handleShowLogin" />
+    <Login :show="showLogin" @setState="handleShowLogin" @showError="showErrorMsg" />
 
+    <!--错误信息提示-->
+    <MessageTip :msg="errorMsg" />
   </div>
 </template>
 
@@ -63,6 +69,7 @@ import PlayIntroduce from "./components/PlayIntroduce.vue";
 import Recharge from "./components/Recharge.vue";
 import Exchange from "./components/Exchange.vue";
 import Login from "./components/Login.vue";
+import MessageTip from "./components/MessageTip.vue";
 
 @Component({
   components: {
@@ -73,33 +80,44 @@ import Login from "./components/Login.vue";
     PlayIntroduce,
     Recharge,
     Exchange,
-    Login
+    Login,
+    MessageTip
   }
 })
 export default class App extends Vue {
-  showRecharge: boolean = false
-  showPlayIntroduce: boolean = false
-  showExchange: boolean = false
-  showLogin: boolean = true
+  showRecharge: boolean = false;
+  showPlayIntroduce: boolean = false;
+  showExchange: boolean = false;
+  showLogin: boolean = false;
+  errorMsg: string = "";
+  errorTimer: any = null
 
-  public handleShowRecharge(){
-    this.showRecharge = !this.showRecharge
-    setBodyScroll(this.showRecharge)
+  public handleShowRecharge() {
+    this.showRecharge = !this.showRecharge;
+    setBodyScroll(this.showRecharge);
   }
 
-  public handleShowPLayIntroduce(){
-    this.showPlayIntroduce = !this.showPlayIntroduce
-    setBodyScroll(this.showPlayIntroduce)
+  public handleShowPLayIntroduce() {
+    this.showPlayIntroduce = !this.showPlayIntroduce;
+    setBodyScroll(this.showPlayIntroduce);
   }
 
-  public handleShowExchange(){
-    this.showExchange = !this.showExchange
-    setBodyScroll(this.showExchange)
+  public handleShowExchange() {
+    this.showExchange = !this.showExchange;
+    setBodyScroll(this.showExchange);
   }
 
-  public handleShowLogin(){
-    this.showLogin = !this.showLogin
-    setBodyScroll(this.showLogin)
+  public handleShowLogin() {
+    this.showLogin = !this.showLogin;
+    setBodyScroll(this.showLogin);
+  }
+
+  public showErrorMsg(msg: string) {
+    this.errorMsg = msg
+    clearInterval(this.errorTimer)
+    this.errorTimer = setTimeout(() => {
+      this.errorMsg = ''
+    }, 2000);
   }
 }
 </script>
