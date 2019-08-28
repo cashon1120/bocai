@@ -93,10 +93,15 @@ export default class PlayIntroduce extends Vue {
       this.disabled = false;
       if (res.code === 1) {
         showMessage("成功");
+        this.submitSuccess(res)
         return;
       }
       showMessage("失败");
     });
+  }
+
+  submitSuccess(res: any){
+    
   }
 }
 </script>

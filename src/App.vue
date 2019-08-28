@@ -3,7 +3,10 @@
     <!--顶部-->
     <div class="flex-container top">
       <div class="flex-1">
-        <a @click="handleShowLogin">登录</a>
+        <div v-if="userName">
+          {{userName}} 
+        </div>
+        <a v-else @click="handleShowLogin">登录</a>
       </div>
       <div>
         <a class="top-btn recharge" @click="handleShowRecharge"></a>
@@ -38,7 +41,7 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge :show="showRecharge" @set-state="handleShowRecharge" />
+    <Recharge :show="showRecharge" @set-state="handleShowRecharge" @submit-success="handleSetUserInfo" />
 
     <!--弹窗 玩法介绍-->
     <PlayIntroduce
@@ -83,6 +86,7 @@ export default class App extends Vue {
   showPlayIntroduce: boolean = false;
   showExchange: boolean = false;
   showLogin: boolean = false;
+  userName: string = ''
 
   public handleShowRecharge() {
     this.showRecharge = !this.showRecharge;
@@ -102,6 +106,10 @@ export default class App extends Vue {
   public handleShowLogin() {
     this.showLogin = !this.showLogin;
     setBodyScroll(this.showLogin);
+  }
+
+  public handleSetUserInfo(res: any){
+
   }
 
 }
