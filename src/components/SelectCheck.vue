@@ -2,78 +2,46 @@
   <div class="check">
     <h3>下注区</h3>
     <div class="flex-group select-number">
-      <div>
+      <div v-for="(ele, index) in numberPlace" :key="index">
         <div>
-          <span class="title">个位</span>
+          <span class="title">{{ele}}</span>
         </div>
-        <div class="number-list" v-for="item in numberList" :key="item">
-          <span>{{item}}</span>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <span class="title">十位</span>
-        </div>
-        <div class="number-list" v-for="item in numberList" :key="item">
-          <span>{{item}}</span>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <span class="title">百位</span>
-        </div>
-        <div class="number-list" v-for="item in numberList" :key="item">
-          <span>{{item}}</span>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <span class="title">千位</span>
-        </div>
-        <div class="number-list" v-for="item in numberList" :key="item">
-          <span>{{item}}</span>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <span class="title">万位</span>
-        </div>
-        <div class="number-list" v-for="item in numberList" :key="item">
-          <span>{{item}}</span>
+        <div
+          class="number-list"
+          v-for="item in numberList"
+          :key="item"
+          @click="pushNumber(item, index)"
+        >
+          <span :class="hasNumber(item, index) ? 'active' : null">{{item}}</span>
         </div>
       </div>
     </div>
 
     <div class="select-type">
-      <div>
-        <span>龙</span>
-        <span>虎</span>
-        <span>和</span>
-      </div>
-      <div>
-        <span>总和大</span>
-        <span>总和小</span>
-        <span>总各单</span>
-        <span>总各双</span>
-      </div>
-      <div>
-        <span>前豹</span>
-        <span>中豹</span>
-        <span>后豹</span>
+      <div v-for="(obj, index) in typeArr" :key="index">
+        <span
+          v-for="item in obj"
+          :class="selectedType === item.value ? 'active' : null"
+          :data-value="item.value"
+          :key="item.value"
+          @click="handleSelectType(item.value)"
+        >{{item.title}}</span>
       </div>
     </div>
 
     <div class="flex-container form-wrapper">
       <div>投注金额:</div>
-      <div class="flex-1" style="margin-right: 20px;"><input /></div>
+      <div class="flex-1" style="margin-right: 20px;">
+        <input v-model="money" @keyup="countAll" />
+      </div>
       <div>合计:</div>
-      <div class="flex-1"><input /></div>
+      <div class="flex-1">
+        <input v-model="total" disabled />
+      </div>
     </div>
-    <div class="btn-container"><button>确认下注</button></div>
+    <div class="btn-container">
+      <button>确认下注</button>
+    </div>
   </div>
 </template>
 
@@ -84,6 +52,66 @@ import { Component, Prop, Vue, Provide } from "vue-property-decorator";
 export default class SelectCheck extends Vue {
   @Prop() private msg!: string;
   numberList: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  numberPlace: string[] = ["个位", "十位", "百位", "千位", "万位"];
+  typeArr: any[] = [
+    [
+      { title: "龙", value: 1 },
+      { title: "虎", value: 2 },
+      { title: "和", value: 3 }
+    ],
+    [
+      { title: "总和大", value: 4 },
+      { title: "总和小", value: 5 },
+      { title: "总和单", value: 6 },
+      { title: "总和双", value: 7 }
+    ],
+    [
+      { title: "前豹", value: 8 },
+      { title: "中豹", value: 9 },
+      { title: "后豹", value: 10 }
+    ]
+  ];
+  selectedNumbers: any[] = [[], [], [], [], []];
+  selectedType: number = 0;
+  money: string = "";
+  total: string = "";
+
+  // 判断是否已经包含该数字
+  public hasNumber(number: number, index: number) {
+    return this.selectedNumbers[index].includes(number);
+  }
+
+  // 点击数字事件
+  public pushNumber(number: number, index: number) {
+    if (!this.hasNumber(number, index)) {
+      this.selectedNumbers[index].push(number);
+    } else {
+      const numberIndex = this.selectedNumbers[index].indexOf(number); // 获取包含数字索引
+      this.selectedNumbers[index].splice(numberIndex, 1);
+    }
+    this.selectedType = 0
+    this.countAll();
+  }
+
+  // 计算总金额
+  public countAll() {
+    const { money } = this;
+    let total = 0;
+    if (money) {
+      this.selectedNumbers.forEach(item => {
+        total += item.length * parseInt(money);
+      });
+      this.total = total.toString();
+    }
+  }
+
+  // 选择龙虎等事件
+  public handleSelectType(data: number) {
+    const { money } = this;
+    this.selectedNumbers = [[], [], [], [], []];
+    this.selectedType = data;
+    this.total = money
+  }
 }
 </script>
 
@@ -106,9 +134,12 @@ h3 {
     background: #4c1203;
     width: 50rem / $base;
     height: 50rem / $base;
-    line-height: 50rem / $base;
+    line-height: 52rem / $base;
     border-radius: 100%;
-    font-size: 24rem/$base;
+    font-size: 24rem / $base;
+  }
+  span.active {
+    background: #a4cb0b;
   }
   span.title {
     border-radius: 10rem / $base;
@@ -121,13 +152,14 @@ h3 {
   flex: 1;
 }
 .select-type {
+  text-align: center;
   div {
     text-align: center;
     padding-top: 20rem / $base;
   }
   span {
     display: inline-block;
-    font-size: 24rem/$base;
+    font-size: 24rem / $base;
     background: #964910;
     height: 50rem / $base;
     padding: 0 20rem / $base;
@@ -136,33 +168,38 @@ h3 {
     color: #fff;
     margin: 0 10rem / $base;
   }
+  span.active {
+    background: #a4cb0b;
+  }
+  span:nth(2) {
+    clear: right;
+  }
 }
-.form-wrapper{
+.form-wrapper {
   padding: 30rem / $base !important;
   margin-top: 20rem / $base;
   font-weight: bold;
-  -webkit-text-stroke: 1px rgba(150,73,16,.6);
+  -webkit-text-stroke: 1px rgba(150, 73, 16, 0.6);
   input {
     width: 100%;
     border: 1px solid #964910;
     border-radius: 10rem / $base;
     outline: none;
     height: 50rem / $base;
-    line-height: 50rem / $base;
+    line-height: 52rem / $base;
     box-sizing: border-box;
     padding: 0 10rem / $base;
   }
- 
 }
-.btn-container{
+.btn-container {
   text-align: center;
-  padding-bottom: 30rem/$base;
- button{
+  padding-bottom: 30rem / $base;
+  button {
     background: #4c1203;
     border: 0;
     border-radius: 10rem / $base;
     color: #fff;
-    padding: 10rem / $base 30rem/$base;
+    padding: 10rem / $base 30rem / $base;
     height: 60rem / $base;
   }
 }

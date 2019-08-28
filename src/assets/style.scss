@@ -18,10 +18,13 @@ button {
   border: 0;
   outline: none;
 }
-#app{
+
+#app {
   background: url(./assets/body_bg.png) no-repeat;
   background-size: 100% 100%;
+  padding-bottom: 15rem/$base;
 }
+
 body {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -202,7 +205,8 @@ body {
         background: #e18935;
       }
     }
-    button:disabled{
+
+    button:disabled {
       opacity: .6;
     }
   }
@@ -222,7 +226,7 @@ body {
   height: 78rem / $base;
 }
 
-.message{
+.message {
   position: fixed;
   z-index: 999;
   left: 0;
@@ -231,12 +235,13 @@ body {
   box-sizing: border-box;
   padding: 0 30px;
   text-align: center;
-  span{
+
+  span {
     display: inline-block;
     background: #000;
     border-radius: 10rem / $base;
     color: #fff;
-    padding:15rem/$base 20rem / $base;
+    padding: 15rem/$base 20rem / $base;
     font-size: 24rem/$base;
   }
 }
