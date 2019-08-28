@@ -1,7 +1,7 @@
 <template>
   <div class="modal recharge" v-show="show">
-    <div>
-      <a class="close activeScale" @click="triggerShow"></a>
+    <div class="modalContent">
+      <a class="close activeScale" @click="setState"></a>
       <div>充值方式</div>
       <div class="flex-container type">
         <div @click="handleSelectType('weixin')">
@@ -21,46 +21,67 @@
         <li data-value="1000" :class="payMoney === '1000' ? 'active' : null">1000</li>
         <li data-value="2000" :class="payMoney === '2000' ? 'active' : null">2000</li>
       </ul>
-      <button @click="handleSubmit">下一步</button>
+      <button :disabled="disabled" @click="handleSubmit">下一步</button>
     </div>
+    <Loading v-show="disabled" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { setBodyScroll } from "../utils/utils";
+import { Component, Prop, Vue, Emit } from "vue-property-decorator";
+import { setBodyScroll, showMessage } from "../utils/utils";
+import Loading from "./Loading.vue";
 
-@Component
+@Component({
+  components: {
+    Loading
+  }
+})
 export default class Recharge extends Vue {
   @Prop() show!: boolean;
   payType: string = "";
   payMoney: string = "";
   errorMsg: string = "";
+  disabled: boolean = false;
 
-  public triggerShow() {
-    this.$emit("setState");
-  }
+  // 调用父组件, 隐藏弹出框
+  @Emit()
+  setState() {}
 
+  // 选择支付类型
   public handleSelectType(type: string) {
     this.payType = type;
   }
 
+  // 选择支付金额
   public handleSelectMoney(e: any) {
-    const money = e.target.dataset.value;
-    this.payMoney = money;
+    this.payMoney = e.target.dataset.value;
   }
 
+  // 提交
   public handleSubmit() {
     const { payType, payMoney } = this;
     if (payType === "") {
-      this.$emit('showError', '请选择支付类型')
-      return
+      showMessage("请选择支付类型");
+      return;
     }
     if (payMoney === "") {
-      this.$emit('showError', '请选择充值金额')
-      return
+      showMessage("请选择充值金额");
+      return;
     }
-
+    this.disabled = true;
+    this.$post("/url", {
+      payType,
+      payMoney
+    }).then((res: any) => {
+      this.disabled = false
+      if(res.code ===1 ){
+        showMessage('成功')
+        return
+      }
+      showMessage('失败')
+      
+    });
   }
 }
 </script>
@@ -106,7 +127,8 @@ $base: 75;
       line-height: 55rem / $base;
       margin: 15rem / $base;
       text-align: center;
-      &:active, &.active {
+      &:active,
+      &.active {
         border: 1px solid #fff;
         color: #fff;
       }

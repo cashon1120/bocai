@@ -16,9 +16,37 @@ export function setBodyScroll(flag : boolean) {
   } else {
     document.body.style.position = 'initial'
     document.body.style.height = 'auto'
-    if(top && document.scrollingElement){
+    if (top && document.scrollingElement) {
       document.scrollingElement.scrollTop = top
     }
     document.body.style.top = '0'
   }
+}
+
+let showMessageTimer : any = null
+export function showMessage(msg : string) {
+  clearTimeout(showMessageTimer)
+  const errorMessageDom = document.querySelector('.errorMessage')
+  if (errorMessageDom) {
+    errorMessageDom.innerHTML = msg
+  } else {
+    const divDom = document.createElement('div')
+    const spanDom = document.createElement('span')
+    divDom.className = "message"
+    spanDom.className = "errorMessage"
+    spanDom.innerHTML = msg
+    divDom.appendChild(spanDom)
+    document
+      .body
+      .appendChild(divDom)
+  }
+
+  showMessageTimer = setTimeout(() => {
+    const divDom = document.querySelector('.message')
+    if (divDom) {
+      document
+        .body
+        .removeChild(divDom)
+    }
+  }, 2000)
 }

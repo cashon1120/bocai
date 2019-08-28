@@ -38,23 +38,19 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge :show="showRecharge" @setState="handleShowRecharge" @showError="showErrorMsg" />
+    <Recharge :show="showRecharge" @set-state="handleShowRecharge" />
 
     <!--弹窗 玩法介绍-->
     <PlayIntroduce
       :show="showPlayIntroduce"
-      @setState="handleShowPLayIntroduce"
-      @showError="showErrorMsg"
+      @set-state="handleShowPLayIntroduce"
     />
 
     <!--弹窗 金币兑换-->
-    <Exchange :show="showExchange" @setState="handleShowExchange" @showError="showErrorMsg" />
+    <Exchange :show="showExchange" @set-state="handleShowExchange" />
 
     <!--弹窗 登录注册-->
-    <Login :show="showLogin" @setState="handleShowLogin" @showError="showErrorMsg" />
-
-    <!--错误信息提示-->
-    <MessageTip :msg="errorMsg" />
+    <Login :show="showLogin" @set-state="handleShowLogin" />
   </div>
 </template>
 
@@ -69,7 +65,6 @@ import PlayIntroduce from "./components/PlayIntroduce.vue";
 import Recharge from "./components/Recharge.vue";
 import Exchange from "./components/Exchange.vue";
 import Login from "./components/Login.vue";
-import MessageTip from "./components/MessageTip.vue";
 
 @Component({
   components: {
@@ -80,8 +75,7 @@ import MessageTip from "./components/MessageTip.vue";
     PlayIntroduce,
     Recharge,
     Exchange,
-    Login,
-    MessageTip
+    Login
   }
 })
 export default class App extends Vue {
@@ -89,8 +83,6 @@ export default class App extends Vue {
   showPlayIntroduce: boolean = false;
   showExchange: boolean = false;
   showLogin: boolean = false;
-  errorMsg: string = "";
-  errorTimer: any = null
 
   public handleShowRecharge() {
     this.showRecharge = !this.showRecharge;
@@ -112,13 +104,6 @@ export default class App extends Vue {
     setBodyScroll(this.showLogin);
   }
 
-  public showErrorMsg(msg: string) {
-    this.errorMsg = msg
-    clearInterval(this.errorTimer)
-    this.errorTimer = setTimeout(() => {
-      this.errorMsg = ''
-    }, 2000);
-  }
 }
 </script>
 

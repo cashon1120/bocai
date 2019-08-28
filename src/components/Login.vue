@@ -1,47 +1,102 @@
 <template>
   <div class="modal login" v-show="show">
-    <div :class="!showLogin ? 'isReg' : null">
-      <a class="close activeScale" @click="triggerShow"></a>
+    <div :class="!isLogin ? 'modalContent isReg' : 'modalContent'">
+      <a class="close activeScale" @click="setState"></a>
       <div class="form-container">
         <div class="form-type flex-container">
           <div class="flex-1" @click="handleChangeType(true)">
-            <span :class="showLogin ? 'active' : null">登录</span>
+            <span :class="isLogin ? 'active' : null">登录</span>
           </div>
           <div class="flex-1" @click="handleChangeType(false)">
-            <span :class="!showLogin ? 'active' : null">注册</span>
+            <span :class="!isLogin ? 'active' : null">注册</span>
           </div>
         </div>
-        <div v-if="showLogin">
-          <input placeholder="账号" />
-          <input placeholder="登录密码" />
+        <div>
+          <input placeholder="账号" v-model="account" />
+          <input placeholder="登录密码" v-model="password" />
         </div>
-        <div v-else>
-          <input placeholder="账号" />
-          <input placeholder="登录密码" />
-          <input placeholder="银行卡号" />
-          <input placeholder="真实姓名" />
+        <div v-if="!isLogin">
+          <input placeholder="银行卡号" v-model="cardNumber" />
+          <input placeholder="真实姓名" v-model="name" />
         </div>
       </div>
-      <button>{{showLogin ? '登录' : '注册'}}</button>
+      <button :disabled="disabled" @click="handleSubmit">{{isLogin ? '登录' : '注册'}}</button>
     </div>
+    <Loading v-show="disabled" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { setBodyScroll } from "../utils/utils";
+import { Component, Prop, Vue, Emit } from "vue-property-decorator";
+import { setBodyScroll, showMessage } from "../utils/utils";
+import Loading from "./Loading.vue";
 
-@Component
+@Component({
+  components: {
+    Loading
+  }
+})
 export default class PlayIntroduce extends Vue {
   @Prop() show!: boolean;
-  showLogin: boolean = true
+  isLogin: boolean = true;
+  disabled: boolean = false;
+  account: string = "";
+  password: string = "";
+  cardNumber: string = "";
+  name: string = "";
 
-  public triggerShow() {
-    this.$emit("setState");
+  @Emit()
+  setState() {}
+
+  // 切换 登录/注册界面
+  public handleChangeType(tag: boolean) {
+    this.isLogin = tag;
   }
 
-  public handleChangeType(tag: boolean){
-    this.showLogin = tag
+  // 提交
+  // 提交
+  public handleSubmit() {
+    const { account, password, cardNumber, name, isLogin } = this;
+    if (account === "") {
+      showMessage("请输入账号");
+      return;
+    }
+    if (password === "") {
+      showMessage("请输入密码");
+      return;
+    }
+    if (!isLogin) {
+      if (cardNumber === "") {
+        showMessage("请输入银行卡号");
+        return;
+      }
+      if (name === "") {
+        showMessage("请输入姓名");
+        return;
+      }
+    }
+    this.disabled = true;
+    const params = {
+      account,
+      password,
+      cardNumber,
+      name
+    }
+    if(isLogin){
+      delete params.cardNumber
+      delete params.name
+    }
+    const url = isLogin ? '/url1' : '/url2'
+    this.$post(url, {
+      ...params
+    }).then((res: any) => {
+      this.disabled = false;
+      if (res.code === 1) {
+        showMessage("成功");
+        return;
+      }
+      showMessage("失败");
+    });
   }
 }
 </script>
@@ -49,8 +104,8 @@ export default class PlayIntroduce extends Vue {
 <style lang="scss">
 $base: 75;
 .login {
-  .isReg{
-    background:url(../assets/modal_bg_reg.png) no-repeat center center !important;
+  .isReg {
+    background: url(../assets/modal_bg_reg.png) no-repeat center center !important;
     background-size: 100% 100% !important;
     min-height: 780rem / $base !important;
   }

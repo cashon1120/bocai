@@ -1,8 +1,8 @@
 <template>
   <div class="modal" v-show="show">
-    <div class="introduce">
+    <div class="modalContent introduce">
       <h3>游戏玩法介绍</h3>
-      <a class="close activeScale" @click="triggerShow"></a>
+      <a class="close activeScale" @click="setState"></a>
       <div class="content">
         <dl>
           <dt>一、赔率介绍</dt>
@@ -30,16 +30,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 import { setBodyScroll } from '../utils/utils'
 
 @Component
 export default class PlayIntroduce extends Vue {
   @Prop() show!: boolean;
 
-  public triggerShow(){
-    this.$emit('setState')
-  }
+  @Emit()
+  setState(){}
 }
 </script>
 

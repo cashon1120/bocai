@@ -11,3 +11,11 @@ declare global {
     }
   }
 }
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $get: any
+    $post: any
+    $utils: object
+  }
+}
