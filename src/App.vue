@@ -3,9 +3,7 @@
     <!--顶部-->
     <div class="flex-container top">
       <div class="flex-1">
-        <div v-if="userName">
-          {{userName}} 
-        </div>
+        <div v-if="userName">{{userName}}</div>
         <a v-else @click="handleShowLogin">登录</a>
       </div>
       <div>
@@ -24,7 +22,7 @@
     <div class="lottery">
       <div class="end-time">
         倒计时
-        <span>60</span>秒
+        <span>{{endTime}}</span>秒
       </div>
       <NumberGroup />
       <SelectCheck />
@@ -41,19 +39,19 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge :show="showRecharge" @set-state="handleShowRecharge" @submit-success="handleSetUserInfo" />
+    <Recharge
+      :show="showRecharge"
+      @set-state="handleShowRecharge"
+    />
 
     <!--弹窗 玩法介绍-->
-    <PlayIntroduce
-      :show="showPlayIntroduce"
-      @set-state="handleShowPLayIntroduce"
-    />
+    <PlayIntroduce :show="showPlayIntroduce" @set-state="handleShowPLayIntroduce" />
 
     <!--弹窗 金币兑换-->
     <Exchange :show="showExchange" @set-state="handleShowExchange" />
 
     <!--弹窗 登录注册-->
-    <Login :show="showLogin" @set-state="handleShowLogin" />
+    <Login :show="showLogin" @set-state="handleShowLogin" @submit-success="handleSetUserInfo"/>
   </div>
 </template>
 
@@ -86,32 +84,56 @@ export default class App extends Vue {
   showPlayIntroduce: boolean = false;
   showExchange: boolean = false;
   showLogin: boolean = false;
-  userName: string = ''
+  userName: string = "";
+  endTime: number = 60;
 
+  mounted() {
+    this.endTimer(60);
+  }
+
+  // 充值金币弹框
   public handleShowRecharge() {
     this.showRecharge = !this.showRecharge;
     setBodyScroll(this.showRecharge);
   }
 
+  // 玩法弹框
   public handleShowPLayIntroduce() {
     this.showPlayIntroduce = !this.showPlayIntroduce;
     setBodyScroll(this.showPlayIntroduce);
   }
 
+  // 兑换弹框
   public handleShowExchange() {
     this.showExchange = !this.showExchange;
     setBodyScroll(this.showExchange);
   }
 
+  // 登录/注册弹框
   public handleShowLogin() {
     this.showLogin = !this.showLogin;
     setBodyScroll(this.showLogin);
   }
 
-  public handleSetUserInfo(res: any){
+  // 设置用户信息
+  public handleSetUserInfo(res: any) {}
 
+  // 倒计时
+  public endTimer(time: number) {
+    let timer: any = null;
+    let endTime = time;
+    const that = this;
+    function timerFn() {
+      timer = setInterval(() => {
+        endTime--;
+        that.endTime = endTime;
+        if (endTime === 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+    }
+    timerFn();
   }
-
 }
 </script>
 

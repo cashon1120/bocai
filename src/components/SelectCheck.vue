@@ -51,7 +51,11 @@ import { Component, Prop, Vue, Provide } from "vue-property-decorator";
 import { showMessage } from "../utils/utils";
 import Loading from "./Loading.vue";
 
-@Component
+@Component({
+  components:{
+    Loading
+  }
+})
 export default class SelectCheck extends Vue {
   @Prop() private msg!: string;
   numberList: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];

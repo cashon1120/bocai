@@ -1,5 +1,6 @@
 <template>
   <div class="number-outer">
+    <div class="hidebox" ref="hidebox"></div>
     <div class="number-container" ref="container" :style="{height:scrollHeight}">
       <ul class="number" ref="numberul" :style="{transform: `translate3d(0, ${endTop}px, 0)`}">
         <li
@@ -20,20 +21,29 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 export default class Number extends Vue {
   @Prop() private toNumber!: number;
   numberList: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  containerDom: any = null;
-  numberUl: any = null;
+  hideboxDom: any = null; // 用来获取高度,以设置 scrollHeight
   timer: any = null;
   scrollHeight: string = "";
   endTop: number = 0;
 
   mounted() {
-    this.containerDom = this.$refs.container;
-    this.numberUl = this.$refs.numberul;
-    this.scrollHeight = this.containerDom.offsetHeight + "px";
+    this.setScrollHeight();
+    window.addEventListener("resize", this.setScrollHeight);
+  }
+
+  // 设置动画高度, resize后也执行一次
+  public setScrollHeight() {
+    const _that = this
+    // 加一点延迟才能获取到
+    setTimeout(() => {
+      _that.hideboxDom = _that.$refs.hidebox;
+      _that.scrollHeight = _that.hideboxDom.offsetHeight + "px";
+      _that.setAnimation(_that.$props.toNumber);
+    }, 500);
   }
 
   @Watch("toNumber", { immediate: true, deep: true })
-  setAnimation(val: number, oldVal: number) {
+  setAnimation(val: number) {
     this.endTop = -val * parseInt(this.scrollHeight);
   }
 }
@@ -51,6 +61,11 @@ $base: 75;
   background-size: 100% 100%;
   box-sizing: border-box;
   padding-top: 5rem / $base;
+  .hidebox {
+    height: 215rem / $base;
+    position: absolute;
+    left: -100px;
+  }
   .number-container {
     margin: auto;
     width: 110rem / $base;

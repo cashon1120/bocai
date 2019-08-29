@@ -1,19 +1,7 @@
 <template>
   <div class="number-group flex-container">
-    <div>
-      <Number :toNumber="ones" />
-    </div>
-    <div>
-      <Number :toNumber="tens" />
-    </div>
-    <div>
-      <Number :toNumber="hundreds" />
-    </div>
-    <div>
-      <Number :toNumber="thousands" />
-    </div>
-    <div>
-      <Number :toNumber="tenThousands" />
+    <div v-for="(number, index) in numbers" :key="index">
+      <Number :toNumber="number" />
     </div>
   </div>
 </template>
@@ -28,20 +16,30 @@ import Number from "./Number.vue";
   }
 })
 export default class NumberGroup extends Vue {
-  ones: number = 0;
-  tens: number = 0;
-  hundreds: number = 0;
-  thousands: number = 0;
-  tenThousands: number = 0;
+  numbers: number[] = [0, 0, 0, 0, 0];
 
   mounted() {
-    setTimeout(() => {
-      this.ones = 5;
-      this.tens = 9;
-      this.hundreds = 0;
-      this.thousands = 4;
-      this.tenThousands = 1;
-    }, 1000);
+    this.getData();
+  }
+
+  // 设置数字
+  private setNumbers(num: number) {
+    const number = num.toString().padStart(5, "0");
+    const temp = [0, 0, 0, 0, 0];
+    number.split("").forEach((key: string, index: number) => {
+      temp[index] = parseInt(key);
+    });
+    this.numbers = temp;
+  }
+
+  // 请求接口
+  private getData() {
+    this.$get("/url", {}).then((res: any) => {
+      if (res.code === 1) {
+        this.setNumbers(res.number);
+        return;
+      }
+    });
   }
 }
 </script>

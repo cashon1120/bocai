@@ -36,7 +36,7 @@ import Loading from "./Loading.vue";
     Loading
   }
 })
-export default class PlayIntroduce extends Vue {
+export default class Login extends Vue {
   @Prop() show!: boolean;
   isLogin: boolean = true;
   disabled: boolean = false;
@@ -100,6 +100,7 @@ export default class PlayIntroduce extends Vue {
     });
   }
 
+  @Emit()
   submitSuccess(res: any){
     
   }
