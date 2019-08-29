@@ -1,28 +1,41 @@
 <template>
   <div class="number-outer">
-    <div class="number-container">
-      <ul class="number">
-        <li class="number-0"></li>
-        <li class="number-1"></li>
-        <li class="number-2"></li>
-        <li class="number-3"></li>
-        <li class="number-4"></li>
-        <li class="number-5"></li>
-        <li class="number-6"></li>
-        <li class="number-7"></li>
-        <li class="number-8"></li>
-        <li class="number-9"></li>
+    <div class="number-container" ref="container" :style="{height:scrollHeight}">
+      <ul class="number" ref="numberul" :style="{transform: `translate3d(0, ${endTop}px, 0)`}">
+        <li
+          :style="{height:scrollHeight}"
+          v-for="(item, index) in numberList"
+          :key="index"
+          :class="`number-${item}`"
+        ></li>
       </ul>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
 export default class Number extends Vue {
-  @Prop() private msg!: string;
+  @Prop() private toNumber!: number;
+  numberList: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  containerDom: any = null;
+  numberUl: any = null;
+  timer: any = null;
+  scrollHeight: string = "";
+  endTop: number = 0;
+
+  mounted() {
+    this.containerDom = this.$refs.container;
+    this.numberUl = this.$refs.numberul;
+    this.scrollHeight = this.containerDom.offsetHeight + "px";
+  }
+
+  @Watch("toNumber", { immediate: true, deep: true })
+  setAnimation(val: number, oldVal: number) {
+    this.endTop = -val * parseInt(this.scrollHeight);
+  }
 }
 </script>
 
@@ -37,22 +50,55 @@ $base: 75;
   background: url(../assets/number_bg.png) no-repeat;
   background-size: 100% 100%;
   box-sizing: border-box;
-  padding-top: 30rem/$base;
+  padding-top: 5rem / $base;
   .number-container {
     margin: auto;
     width: 110rem / $base;
-    height: 155rem / $base;
+    height: 215rem / $base;
     overflow: hidden;
+    position: relative;
+    border-radius: 55rem / $base;
   }
   .number {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    transition: all 2s ease-in-out 0s;
     li {
       width: 110rem / $base;
-      height: 155rem / $base;
-      background-size: 80% 80%;
+      height: 215rem / $base;
+      background-size: 60% 50%;
       background-repeat: no-repeat;
       background-position: center center;
       &.number-0 {
         background-image: url(../assets/0.png);
+      }
+      &.number-1 {
+        background-image: url(../assets/1.png);
+      }
+      &.number-2 {
+        background-image: url(../assets/2.png);
+      }
+      &.number-3 {
+        background-image: url(../assets/3.png);
+      }
+      &.number-4 {
+        background-image: url(../assets/4.png);
+      }
+      &.number-5 {
+        background-image: url(../assets/5.png);
+      }
+      &.number-6 {
+        background-image: url(../assets/6.png);
+      }
+      &.number-7 {
+        background-image: url(../assets/7.png);
+      }
+      &.number-8 {
+        background-image: url(../assets/8.png);
+      }
+      &.number-9 {
+        background-image: url(../assets/9.png);
       }
     }
   }

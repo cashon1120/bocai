@@ -1,19 +1,19 @@
 <template>
   <div class="number-group flex-container">
     <div>
-      <Number />
+      <Number :toNumber="ones" />
     </div>
     <div>
-      <Number />
+      <Number :toNumber="tens" />
     </div>
     <div>
-      <Number />
+      <Number :toNumber="hundreds" />
     </div>
     <div>
-      <Number />
+      <Number :toNumber="thousands" />
     </div>
     <div>
-      <Number />
+      <Number :toNumber="tenThousands" />
     </div>
   </div>
 </template>
@@ -28,7 +28,21 @@ import Number from "./Number.vue";
   }
 })
 export default class NumberGroup extends Vue {
-  @Prop() private msg!: string;
+  ones: number = 0;
+  tens: number = 0;
+  hundreds: number = 0;
+  thousands: number = 0;
+  tenThousands: number = 0;
+
+  mounted() {
+    setTimeout(() => {
+      this.ones = 5;
+      this.tens = 9;
+      this.hundreds = 0;
+      this.thousands = 4;
+      this.tenThousands = 1;
+    }, 1000);
+  }
 }
 </script>
 
@@ -37,6 +51,6 @@ export default class NumberGroup extends Vue {
 $base: 75;
 .number-group > div {
   flex: 1;
-    text-align: center;
+  text-align: center;
 }
 </style>

@@ -40,13 +40,16 @@
       </div>
     </div>
     <div class="btn-container">
-      <button>确认下注</button>
+      <button class="activeScale" :disabled="disabled" @click="handleSubmit">确认下注</button>
     </div>
+    <Loading v-show="disabled" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Provide } from "vue-property-decorator";
+import { showMessage } from "../utils/utils";
+import Loading from "./Loading.vue";
 
 @Component
 export default class SelectCheck extends Vue {
@@ -75,6 +78,7 @@ export default class SelectCheck extends Vue {
   selectedType: number = 0;
   money: string = "";
   total: string = "";
+  disabled: boolean = false
 
   // 判断是否已经包含该数字
   public hasNumber(number: number, index: number) {
@@ -89,7 +93,7 @@ export default class SelectCheck extends Vue {
       const numberIndex = this.selectedNumbers[index].indexOf(number); // 获取包含数字索引
       this.selectedNumbers[index].splice(numberIndex, 1);
     }
-    this.selectedType = 0
+    this.selectedType = 0;
     this.countAll();
   }
 
@@ -110,7 +114,36 @@ export default class SelectCheck extends Vue {
     const { money } = this;
     this.selectedNumbers = [[], [], [], [], []];
     this.selectedType = data;
-    this.total = money
+    this.total = money;
+  }
+
+  // 提交
+  public handleSubmit() {
+    const { money, selectedNumbers, selectedType } = this;
+    let count = 0;
+    selectedNumbers.forEach(item => {
+      count += item.length;
+    });
+    if (selectedType === 0 || count === 0) {
+      showMessage("请选择一个玩法");
+      return;
+    }
+    if (money === "") {
+      showMessage("请输入投注金额");
+      return;
+    }
+    this.disabled = true;
+    this.$post("/url", {
+      money,
+      selectedType
+    }).then((res: any) => {
+      this.disabled = false;
+      if (res.code === 1) {
+        showMessage("成功");
+        return;
+      }
+      showMessage("失败");
+    });
   }
 }
 </script>
