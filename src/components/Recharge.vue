@@ -1,5 +1,5 @@
 <template>
-  <div class="modal recharge" v-show="show">
+  <div class="modal recharge">
     <div class="modalContent">
       <a class="close activeScale" @click="setState"></a>
       <div>充值方式</div>
@@ -38,7 +38,7 @@ import Loading from "./Loading.vue";
   }
 })
 export default class Recharge extends Vue {
-  @Prop() show!: boolean;
+
   payType: string = "";
   payMoney: string = "";
   errorMsg: string = "";

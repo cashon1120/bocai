@@ -27,7 +27,7 @@
       <NumberGroup />
       <SelectCheck />
       <!--下注记录 按钮-->
-      <div class="btn record activeScale" @click="handleShowPLayIntroduce"></div>
+      <div class="btn record activeScale" @click="handleShowPLayRecord"></div>
       <!--玩法介绍 按钮-->
       <div class="btn desc activeScale" @click="handleShowPLayIntroduce"></div>
     </div>
@@ -39,19 +39,27 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge
-      :show="showRecharge"
-      @set-state="handleShowRecharge"
-    />
+    <Recharge v-if="showRecharge" @set-state="handleShowRecharge" />
 
     <!--弹窗 玩法介绍-->
-    <PlayIntroduce :show="showPlayIntroduce" @set-state="handleShowPLayIntroduce" />
+    <PlayIntroduce v-if="showPlayIntroduce" @set-state="handleShowPLayIntroduce" />
+
+    <!--弹窗 下注记录-->
+    <PlayRecord v-if="showPlayRecord" @set-state="handleShowPLayRecord" />
 
     <!--弹窗 金币兑换-->
-    <Exchange :show="showExchange" @set-state="handleShowExchange" />
+    <Exchange v-if="showExchange" @set-state="handleShowExchange" />
 
     <!--弹窗 登录注册-->
-    <Login :show="showLogin" @set-state="handleShowLogin" @submit-success="handleSetUserInfo"/>
+    <Login v-if="showLogin" @set-state="handleShowLogin" @submit-success="handleSetUserInfo" />
+
+    <!--预加载几张图-->
+    <div v-if="isLoaded" class="preloadImg">
+      <div class="preloadImg-1"></div>
+      <div class="preloadImg-2"></div>
+      <div class="preloadImg-3"></div>
+      <div class="preloadImg-4"></div>
+    </div>
   </div>
 </template>
 
@@ -62,10 +70,13 @@ import NumberGroup from "./components/NumberGroup.vue";
 import SelectCheck from "./components/SelectCheck.vue";
 import HistoryRecord from "./components/HistoryRecord.vue";
 import WinnerList from "./components/WinnerList.vue";
-import PlayIntroduce from "./components/PlayIntroduce.vue";
-import Recharge from "./components/Recharge.vue";
-import Exchange from "./components/Exchange.vue";
-import Login from "./components/Login.vue";
+
+// 异步加载弹框组件
+const PlayIntroduce = () => import("./components/PlayIntroduce.vue");
+const PlayRecord = () => import("./components/PlayRecord.vue");
+const Exchange = () => import("./components/Exchange.vue");
+const Recharge = () => import("./components/Recharge.vue");
+const Login = () => import("./components/Login.vue");
 
 @Component({
   components: {
@@ -74,6 +85,7 @@ import Login from "./components/Login.vue";
     HistoryRecord,
     WinnerList,
     PlayIntroduce,
+    PlayRecord,
     Recharge,
     Exchange,
     Login
@@ -84,11 +96,14 @@ export default class App extends Vue {
   showPlayIntroduce: boolean = false;
   showExchange: boolean = false;
   showLogin: boolean = false;
+  showPlayRecord: boolean = false;
   userName: string = "";
+  isLoaded: boolean = false;
   endTime: number = 60;
 
   mounted() {
     this.endTimer(60);
+    this.isLoaded = true; // 预加载指定的几张图片
   }
 
   // 充值金币弹框
@@ -112,6 +127,12 @@ export default class App extends Vue {
   // 登录/注册弹框
   public handleShowLogin() {
     this.showLogin = !this.showLogin;
+    setBodyScroll(this.showLogin);
+  }
+
+  // 下注记录弹框
+  public handleShowPLayRecord() {
+    this.showPlayRecord = !this.showPlayRecord;
     setBodyScroll(this.showLogin);
   }
 

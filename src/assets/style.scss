@@ -155,7 +155,7 @@ body {
     padding-top: 70rem / $base;
     background: url(./assets/modal_bg.png) no-repeat center;
     background-size: 100% 100%;
-    animation: showModal .2s forwards;
+    animation: showModal .3s ease-out forwards;
 
     @keyframes showModal {
       from {
@@ -243,5 +243,31 @@ body {
     color: #fff;
     padding: 15rem/$base 20rem / $base;
     font-size: 24rem/$base;
+  }
+}
+
+.preloadImg {
+  position: absolute;
+  left: - 100px;
+
+  div {
+    width: 0;
+    height: 0;
+  }
+
+  .preloadImg-1 {
+    background: url(./assets/play_introduce_bg.png) no-repeat;
+  }
+
+  .preloadImg-2 {
+    background: url(./assets/modal_bg.png) no-repeat;
+  }
+
+  .preloadImg-3 {
+    background: url(./assets/modal_bg_reg.png) no-repeat;
+  }
+
+  .preloadImg-4 {
+    background: url(./assets/btn_close.png) no-repeat;
   }
 }

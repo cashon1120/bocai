@@ -1,5 +1,5 @@
 <template>
-  <div class="modal login" v-show="show">
+  <div class="modal login">
     <div :class="!isLogin ? 'modalContent isReg' : 'modalContent'">
       <a class="close activeScale" @click="setState"></a>
       <div class="form-container">
@@ -37,7 +37,6 @@ import Loading from "./Loading.vue";
   }
 })
 export default class Login extends Vue {
-  @Prop() show!: boolean;
   isLogin: boolean = true;
   disabled: boolean = false;
   account: string = "";

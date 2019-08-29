@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" v-show="show">
+  <div class="modal">
     <div class="modalContent introduce">
       <h3>游戏玩法介绍</h3>
       <a class="close activeScale" @click="setState"></a>
@@ -35,8 +35,6 @@ import { setBodyScroll } from '../utils/utils'
 
 @Component
 export default class PlayIntroduce extends Vue {
-  @Prop() show!: boolean;
-
   @Emit()
   setState(){}
 }
@@ -47,7 +45,7 @@ $base: 75;
 .introduce {
   background: url(../assets/play_introduce_bg.png) no-repeat;
   background-size: 100% 100%;
-  height: 810rem / $base;
+  height: 780rem / $base;
   width: 100%;
   box-sizing: border-box;
   padding: 40rem / $base 55rem / $base 30rem / $base 55rem / $base;
@@ -57,7 +55,7 @@ $base: 75;
   }
   .content {
     text-align: left;
-    height: 600rem / $base;
+    height: 550rem / $base;
     overflow: auto;
     font-size: 24rem / $base;
     dl {

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal exchange" v-show="show">
+  <div class="modal exchange">
     <div class="modalContent">
       <a class="close activeScale" @click="setState"></a>
       <div class="form-container">
@@ -23,7 +23,6 @@ import Loading from "./Loading.vue";
   }
 })
 export default class Exchange extends Vue {
-  @Prop() show!: boolean;
   account: string = "";
   money: string = "";
   disabled: boolean = false;
