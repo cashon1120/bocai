@@ -50,3 +50,7 @@ export function showMessage(msg : string) {
     }
   }, 2000)
 }
+
+export function randomNum(minNum : number, maxNum : number) {
+  return parseInt((Math.random() * (maxNum - minNum + 1) + minNum).toString())
+}

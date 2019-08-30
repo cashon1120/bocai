@@ -55,6 +55,7 @@ body {
 }
 
 .top {
+  color: #683c0d;
   a {
     color: #683c0d;
   }
@@ -91,6 +92,10 @@ body {
   font-size: 24rem/$base;
   background: #fff;
   box-shadow: inset 0 0 15rem/$base rgba(140, 91, 59, 1);
+  a{
+    margin-right: 20rem/ $base;
+    color: #f00;
+  }
 }
 
 .lottery {
@@ -186,6 +191,7 @@ body {
         margin-top: 70rem / $base;
         height: 40rem / $base;
         line-height: 40rem / $base;
+        font-size: 30rem / $base;
       }
 
       input::-webkit-input-placeholder {
@@ -270,4 +276,8 @@ body {
   .preloadImg-4 {
     background: url(./assets/btn_close.png) no-repeat;
   }
+}
+.nodata{
+  padding-top: 30rem/$base;
+  text-align: center !important;
 }

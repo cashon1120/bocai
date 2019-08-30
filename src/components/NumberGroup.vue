@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Watch, Vue } from "vue-property-decorator";
 import Number from "./Number.vue";
 
 @Component({
@@ -16,30 +16,19 @@ import Number from "./Number.vue";
   }
 })
 export default class NumberGroup extends Vue {
+  @Prop() private data!: any;
+
   numbers: number[] = [0, 0, 0, 0, 0];
 
-  mounted() {
-    this.getData();
-  }
-
-  // 设置数字
-  private setNumbers(num: number) {
-    const number = num.toString().padStart(5, "0");
-    const temp = [0, 0, 0, 0, 0];
-    number.split("").forEach((key: string, index: number) => {
-      temp[index] = parseInt(key);
-    });
-    this.numbers = temp;
-  }
-
-  // 请求接口
-  private getData() {
-    this.$get("/url", {}).then((res: any) => {
-      if (res.code === 1) {
-        this.setNumbers(res.number);
-        return;
-      }
-    });
+  @Watch("data", { immediate: true, deep: true })
+  setAnimation(val: any) {
+    this.numbers = [
+      val.num_one,
+      val.num_two,
+      val.num_three,
+      val.num_four,
+      val.num_fives
+    ];
   }
 }
 </script>

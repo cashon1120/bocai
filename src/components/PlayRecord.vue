@@ -4,20 +4,52 @@
       <h3>下注记录</h3>
       <a class="close activeScale" @click="setState('playRecord')"></a>
       <div class="content">
-        
+        <div v-if="dataList.length > 0">
+          <ul>
+            <li v-for="item in dataList" :key="item.id"></li>
+          </ul>
+        </div>
+        <div class="nodata" v-else>暂无记录</div>
       </div>
     </div>
+    <Loading v-show="loading" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import { setBodyScroll } from '../utils/utils'
+import Loading from "./Loading.vue";
+import { setBodyScroll } from "../utils/utils";
 
-@Component
+@Component({
+  components: {
+    Loading
+  }
+})
 export default class PlayIntroduce extends Vue {
+  dataList: any[] = [];
+  loading: boolean = false;
+
   @Emit()
-  setState(){}
+  setState() {}
+
+  public mounted() {
+    this.getData();
+  }
+
+  public getData() {
+    this.loading = true;
+    this.$get("/pc/order/user_log", {})
+      .then((res: any) => {
+        if (res.success) {
+          this.dataList = res.data;
+        }
+        this.loading = false;
+      })
+      .catch(() => {
+        this.loading = false;
+      });
+  }
 }
 </script>
 

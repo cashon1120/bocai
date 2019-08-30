@@ -17,5 +17,6 @@ declare module 'vue/types/vue' {
     $get: any
     $post: any
     $utils: object
+    $configList: any[]
   }
 }

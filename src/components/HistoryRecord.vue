@@ -1,38 +1,35 @@
 <template>
   <div class="history">
     <ul>
-      <li v-for="item in dataList" :key="item.id">
-        第{{item.id}}期
-        <span>【{{item.number1}}】【{{item.number2}}】【{{item.number3}}】【{{item.number4}}】【{{item.number5}}】</span>
+      <li v-for="(item, index) in dataList" :key="item.id">
+        <div v-if="index <= 5">
+          第{{item.number_periods}}期
+          <span>【{{item.num_one}}】【{{item.num_two}}】【{{item.num_three}}】【{{item.num_four}}】【{{item.num_fives}}】</span>
+        </div>
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Emit, Vue } from "vue-property-decorator";
 
 @Component
 export default class HistoryRecord extends Vue {
-  dataList: any[] = [
-    {
-      id: 2340923094823098,
-      number1: 1,
-      number2: 2,
-      number3: 3,
-      number4: 4,
-      number5: 5
-    }
-  ];
+  dataList: any[] = [];
   mounted() {
     this.getData();
   }
 
+  @Emit()
+  setData(time: string, data: any){}
+
   // 请求接口
   private getData() {
-    this.$get("/url", {}).then((res: any) => {
-      if (res.code === 1) {
-        return;
+    this.$get("/pc/order/get_number_periods", {}).then((res: any) => {
+      if (res.success) {
+        this.dataList = res.data.filter((item: any) => item.state === 1);
+        this.setData(res.data[0].publish_time, this.dataList[0])
       }
     });
   }

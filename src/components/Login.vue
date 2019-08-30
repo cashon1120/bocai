@@ -12,12 +12,12 @@
           </div>
         </div>
         <div>
-          <input placeholder="账号" v-model="account" />
-          <input placeholder="登录密码" v-model="password" />
+          <input placeholder="账号" v-model="formData.account" />
+          <input placeholder="登录密码" type="password" v-model="formData.pwd" />
         </div>
         <div v-if="!isLogin">
-          <input placeholder="银行卡号" v-model="cardNumber" />
-          <input placeholder="真实姓名" v-model="name" />
+          <input placeholder="银行卡号" v-model="formData.cardNumber" />
+          <input placeholder="真实姓名" v-model="formData.name" />
         </div>
       </div>
       <button :disabled="disabled" @click="handleSubmit">{{isLogin ? '登录' : '注册'}}</button>
@@ -31,6 +31,13 @@ import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 import { setBodyScroll, showMessage } from "../utils/utils";
 import Loading from "./Loading.vue";
 
+interface IformData {
+  account: string;
+  pwd: string;
+  cardNumber: string;
+  name: string;
+}
+
 @Component({
   components: {
     Loading
@@ -39,10 +46,12 @@ import Loading from "./Loading.vue";
 export default class Login extends Vue {
   isLogin: boolean = true;
   disabled: boolean = false;
-  account: string = "";
-  password: string = "";
-  cardNumber: string = "";
-  name: string = "";
+  formData: IformData = {
+    account: "",
+    pwd: "",
+    cardNumber: "",
+    name: ""
+  };
 
   @Emit()
   setState() {}
@@ -50,59 +59,69 @@ export default class Login extends Vue {
   // 切换 登录/注册界面
   public handleChangeType(tag: boolean) {
     this.isLogin = tag;
+    this.formData = {
+      account: "",
+      pwd: "",
+      cardNumber: "",
+      name: ""
+    };
   }
 
   // 提交
   // 提交
   public handleSubmit() {
-    const { account, password, cardNumber, name, isLogin } = this;
+    const {
+      formData: { account, pwd, cardNumber, name },
+      isLogin
+    } = this;
     if (account === "") {
       showMessage("请输入账号");
       return;
     }
-    if (password === "") {
+    if (pwd === "") {
       showMessage("请输入密码");
       return;
     }
-    if (!isLogin) {
-      if (cardNumber === "") {
-        showMessage("请输入银行卡号");
-        return;
-      }
-      if (name === "") {
-        showMessage("请输入姓名");
-        return;
-      }
-    }
+    // if (!isLogin) {
+    //   if (cardNumber === "") {
+    //     showMessage("请输入银行卡号");
+    //     return;
+    //   }
+    //   if (name === "") {
+    //     showMessage("请输入姓名");
+    //     return;
+    //   }
+    // }
     this.disabled = true;
     const params = {
       account,
-      password,
-      cardNumber,
-      name
-    }
-    if(isLogin){
-      delete params.cardNumber
-      delete params.name
-    }
-    const url = isLogin ? '/url1' : '/url2'
-    this.$post(url, {
-      ...params
-    }).then((res: any) => {
-      this.disabled = false;
-      if (res.code === 1) {
-        showMessage("成功");
-        this.submitSuccess(res)
-        return;
-      }
-      showMessage("失败");
-    });
+      pwd
+      // cardNumber,
+      // name
+    };
+    // if (isLogin) {
+    //   delete params.cardNumber;
+    //   delete params.name;
+    // }
+    const url = isLogin ? "/pc/user/login" : "/pc/user/register";
+    const defaultMsg = isLogin ? "登录" : "注册";
+    this.$post(url, params)
+      .then((res: any) => {
+        this.disabled = false;
+        if (res.success) {
+          showMessage(res.msg);
+          this.submitSuccess(res.data);
+          return;
+        }
+        showMessage(`${defaultMsg}失败, ${res.msg}`);
+      })
+      .catche(() => {
+        this.disabled = false;
+      });
   }
 
   @Emit()
-  submitSuccess(res: any){
-    
-  }
+  submitSuccess(res: any) {}
 }
 </script>
 

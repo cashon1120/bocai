@@ -1,36 +1,47 @@
 <template>
   <div class="modal recharge">
     <div class="modalContent">
-      <a class="close activeScale" @click="setState('recharge')"></a>
-      <div>充值方式</div>
-      <div class="flex-container type">
-        <div @click="handleSelectType('weixin')">
-          <span :class="payType === 'weixin' ? 'active' : null"></span>微信
+      <a class="close activeScale" @click="handleClose"></a>
+      <div v-if="!showImg">
+        <div>充值方式</div>
+        <div class="flex-container type">
+          <div @click="handleSelectType('weixin')">
+            <span :class="payType === 'weixin' ? 'active' : null"></span>微信
+          </div>
+          <div @click="handleSelectType('alipay')">
+            <span :class="payType === 'alipay' ? 'active' : null"></span>支付宝
+          </div>
         </div>
-        <div @click="handleSelectType('zhifubao')">
-          <span :class="payType === 'zhifubao' ? 'active' : null"></span>支付宝
-        </div>
+        <div>充值金额</div>
+        <ul class="money" @click="handleSelectMoney">
+          <li
+            v-for="item in configList"
+            :key="item.id"
+            :data-value="item.key"
+            :class="payMoney === item.key ? 'active' : null"
+          >{{item.key}}</li>
+        </ul>
+        <button :disabled="disabled" @click="handleSubmit">下一步</button>
       </div>
-      <div>充值金额</div>
-      <ul class="money" @click="handleSelectMoney">
-        <li data-value="30" :class="payMoney === '30' ? 'active' : null">30</li>
-        <li data-value="50" :class="payMoney === '50' ? 'active' : null">50</li>
-        <li data-value="100" :class="payMoney === '100' ? 'active' : null">100</li>
-        <li data-value="300" :class="payMoney === '300' ? 'active' : null">300</li>
-        <li data-value="500" :class="payMoney === '500' ? 'active' : null">500</li>
-        <li data-value="1000" :class="payMoney === '1000' ? 'active' : null">1000</li>
-        <li data-value="2000" :class="payMoney === '2000' ? 'active' : null">2000</li>
-      </ul>
-      <button :disabled="disabled" @click="handleSubmit">下一步</button>
+      <div class="code" v-else>
+        <span>￥{{payInfo.money}}</span>
+        <img :src="payInfo.imgUrl" alt="支付码" />
+        <div>支付成功后，请手动刷新余额</div>
+      </div>
     </div>
-    <Loading v-show="disabled" />
+    <Loading v-show="disabled || loading" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import { setBodyScroll, showMessage } from "../utils/utils";
+import { Component, Prop, Watch, Vue, Emit } from "vue-property-decorator";
+import { setBodyScroll, showMessage, randomNum } from "../utils/utils";
 import Loading from "./Loading.vue";
+
+interface IpayInfo{
+  money: number
+  imgUrl: string
+}
 
 @Component({
   components: {
@@ -38,15 +49,29 @@ import Loading from "./Loading.vue";
   }
 })
 export default class Recharge extends Vue {
-
+  @Prop() private configList!: any[];
   payType: string = "";
   payMoney: string = "";
   errorMsg: string = "";
   disabled: boolean = false;
+  loading: boolean = false;
+  showImg: boolean = false;
+  payInfo: any = {
+    money: 0,
+    imgUrl: ''
+  }
+  dataList: any[] = [];
 
   // 调用父组件, 隐藏弹出框
   @Emit()
-  setState() {}
+  setState(type: string) {}
+
+  public handleClose() {
+    this.payType = "";
+    this.payMoney = "";
+    this.showImg = false;
+    this.setState("recharge");
+  }
 
   // 选择支付类型
   public handleSelectType(type: string) {
@@ -60,6 +85,11 @@ export default class Recharge extends Vue {
 
   // 提交
   public handleSubmit() {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showMessage("请先登录");
+      return;
+    }
     const { payType, payMoney } = this;
     if (payType === "") {
       showMessage("请选择支付类型");
@@ -69,19 +99,42 @@ export default class Recharge extends Vue {
       showMessage("请选择充值金额");
       return;
     }
+    this.setPayInfo();
+    return;
     this.disabled = true;
-    this.$post("/url", {
-      payType,
-      payMoney
-    }).then((res: any) => {
-      this.disabled = false
-      if(res.code ===1 ){
-        showMessage('成功')
-        return
+    this.$post("/pc/pay/caeate_order", {
+      userId,
+      type: payType,
+      money: payMoney
+    })
+      .then((res: any) => {
+        this.disabled = false;
+        if (res.success) {
+          showMessage(res.msg);
+          return;
+        }
+        showMessage(res.msg);
+      })
+      .catch(() => {
+        this.disabled = false;
+      });
+  }
+
+  public setPayInfo() {
+    const { payType, payMoney } = this;
+    this.$props.configList.forEach((item: any, index: number) => {
+      if (item.key === payMoney) {
+        const index = randomNum(0, item.shopList.length - 1);
+        if(payType === 'weixin'){
+        this.payInfo.imgUrl = item.shopList[index].wx_url
+        }else{
+          this.payInfo.imgUrl = item.shopList[index].ali_url
+        }
+        this.payInfo.money = item.shopList[index].money
+        this.showImg = true
       }
-      showMessage('失败')
-      
     });
+
   }
 }
 </script>
@@ -132,6 +185,20 @@ $base: 75;
         border: 1px solid #fff;
         color: #fff;
       }
+    }
+  }
+
+  .code {
+    text-align: center;
+    span {
+      font-size: 45rem / $base;
+      font-weight: bold;
+      display: block;
+      padding: 10rem / $base;
+    }
+    img {
+      width: 42%;
+      margin-bottom: 10rem / $base;
     }
   }
 }

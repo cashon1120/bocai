@@ -1,10 +1,18 @@
 import Vue from 'vue';
+import qs from 'qs'
 import axios from 'axios';
 
 // 设置默认请求头
-axios.defaults.headers = {
-    'Content-Type': 'application/json'
-};
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.transformRequest = [function (data) {
+    let ret = ''
+    for (let it in data) {
+      ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+    }
+    return ret
+}]
+
 axios.defaults.baseURL = '/api';
 // 请求超时的时间限制
 axios.defaults.timeout = 20000;
@@ -13,7 +21,6 @@ axios
     .interceptors
     .request
     .use((config : any) => {
-        config.headers.token = '1234124'
         return config
     }, (error : any) => {
         return Promise.reject(error);
