@@ -4,13 +4,13 @@
     <div class="flex-container top">
       <div class="flex-1">
         <div v-if="userName">{{userName}}</div>
-        <a v-else @click="handleShowLogin">登录</a>
+        <a v-else @click="handleShowModal('login')">登录</a>
       </div>
       <div>
-        <a class="top-btn recharge" @click="handleShowRecharge"></a>
+        <a class="top-btn recharge" @click="handleShowModal('recharge')"></a>
       </div>
       <div>
-        <a class="top-btn exchange" @click="handleShowExchange"></a>
+        <a class="top-btn exchange" @click="handleShowModal('exchange')"></a>
       </div>
     </div>
     <!--期数-->
@@ -27,9 +27,9 @@
       <NumberGroup />
       <SelectCheck />
       <!--下注记录 按钮-->
-      <div class="btn record activeScale" @click="handleShowPLayRecord"></div>
+      <div class="btn record activeScale" @click="handleShowModal('playRecord')"></div>
       <!--玩法介绍 按钮-->
-      <div class="btn desc activeScale" @click="handleShowPLayIntroduce"></div>
+      <div class="btn desc activeScale" @click="handleShowModal('playIntroduce')"></div>
     </div>
 
     <!--历史开奖记录-->
@@ -39,19 +39,19 @@
     <WinnerList />
 
     <!--弹窗 金币充值-->
-    <Recharge v-if="showRecharge" @set-state="handleShowRecharge" />
+    <Recharge v-if="showRecharge" @set-state="handleShowModal" />
 
     <!--弹窗 玩法介绍-->
-    <PlayIntroduce v-if="showPlayIntroduce" @set-state="handleShowPLayIntroduce" />
+    <PlayIntroduce v-if="showPlayIntroduce" @set-state="handleShowModal" />
 
     <!--弹窗 下注记录-->
-    <PlayRecord v-if="showPlayRecord" @set-state="handleShowPLayRecord" />
+    <PlayRecord v-if="showPlayRecord" @set-state="handleShowModal" />
 
     <!--弹窗 金币兑换-->
-    <Exchange v-if="showExchange" @set-state="handleShowExchange" />
+    <Exchange v-if="showExchange" @set-state="handleShowModal" />
 
     <!--弹窗 登录注册-->
-    <Login v-if="showLogin" @set-state="handleShowLogin" @submit-success="handleSetUserInfo" />
+    <Login v-if="showLogin" @set-state="handleShowModal" @submit-success="handleSetUserInfo" />
 
     <!--预加载几张图-->
     <div v-if="isLoaded" class="preloadImg">
@@ -106,34 +106,31 @@ export default class App extends Vue {
     this.isLoaded = true; // 预加载指定的几张图片
   }
 
-  // 充值金币弹框
-  public handleShowRecharge() {
-    this.showRecharge = !this.showRecharge;
+  handleShowModal(type: string) {
+    let bodyScrollStatus: boolean = false;
+    switch (type) {
+      case "recharge":
+        this.showRecharge = !this.showRecharge;
+        bodyScrollStatus = this.showRecharge;
+        break;
+      case "exchange":
+        this.showExchange = !this.showExchange;
+        bodyScrollStatus = this.showExchange;
+        break;
+      case "playIntroduce":
+        this.showPlayIntroduce = !this.showPlayIntroduce;
+        bodyScrollStatus = this.showPlayIntroduce;
+        break;
+      case "playRecord":
+        this.showPlayRecord = !this.showPlayRecord;
+        bodyScrollStatus = this.showPlayRecord;
+        break;
+      default:
+        this.showLogin = !this.showLogin;
+        bodyScrollStatus = this.showLogin;
+        break;
+    }
     setBodyScroll(this.showRecharge);
-  }
-
-  // 玩法弹框
-  public handleShowPLayIntroduce() {
-    this.showPlayIntroduce = !this.showPlayIntroduce;
-    setBodyScroll(this.showPlayIntroduce);
-  }
-
-  // 兑换弹框
-  public handleShowExchange() {
-    this.showExchange = !this.showExchange;
-    setBodyScroll(this.showExchange);
-  }
-
-  // 登录/注册弹框
-  public handleShowLogin() {
-    this.showLogin = !this.showLogin;
-    setBodyScroll(this.showLogin);
-  }
-
-  // 下注记录弹框
-  public handleShowPLayRecord() {
-    this.showPlayRecord = !this.showPlayRecord;
-    setBodyScroll(this.showLogin);
   }
 
   // 设置用户信息

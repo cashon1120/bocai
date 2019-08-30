@@ -2,7 +2,7 @@
   <div class="modal">
     <div class="modalContent introduce">
       <h3>游戏玩法介绍</h3>
-      <a class="close activeScale" @click="setState"></a>
+      <a class="close activeScale" @click="setState('playIntroduce')"></a>
       <div class="content">
         <dl>
           <dt>一、赔率介绍</dt>

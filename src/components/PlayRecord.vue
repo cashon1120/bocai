@@ -2,7 +2,7 @@
   <div class="modal">
     <div class="modalContent introduce">
       <h3>下注记录</h3>
-      <a class="close activeScale" @click="setState"></a>
+      <a class="close activeScale" @click="setState('playRecord')"></a>
       <div class="content">
         
       </div>

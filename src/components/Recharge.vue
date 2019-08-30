@@ -1,7 +1,7 @@
 <template>
   <div class="modal recharge">
     <div class="modalContent">
-      <a class="close activeScale" @click="setState"></a>
+      <a class="close activeScale" @click="setState('recharge')"></a>
       <div>充值方式</div>
       <div class="flex-container type">
         <div @click="handleSelectType('weixin')">

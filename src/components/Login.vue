@@ -1,7 +1,7 @@
 <template>
   <div class="modal login">
     <div :class="!isLogin ? 'modalContent isReg' : 'modalContent'">
-      <a class="close activeScale" @click="setState"></a>
+      <a class="close activeScale" @click="setState('loading')"></a>
       <div class="form-container">
         <div class="form-type flex-container">
           <div class="flex-1" @click="handleChangeType(true)">

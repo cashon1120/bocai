@@ -1,7 +1,7 @@
 <template>
   <div class="modal exchange">
     <div class="modalContent">
-      <a class="close activeScale" @click="setState"></a>
+      <a class="close activeScale" @click="setState('exchange')"></a>
       <div class="form-container">
         <input placeholder="请输入游戏账号" v-model="account" />
         <input placeholder="请输入兑换的金额" v-model="money" />
