@@ -99,8 +99,14 @@
     </div>
   </div>
 </template>
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+@Component
+export default class Winner extends Vue {
+
+}
+</script>
 <style scoped lang="scss">
 $base: 75;
 .winner-list {

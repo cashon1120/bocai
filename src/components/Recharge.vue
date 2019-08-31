@@ -100,7 +100,6 @@ export default class Recharge extends Vue {
       return;
     }
     this.setPayInfo();
-    return;
     this.disabled = true;
     this.$post("/pc/pay/caeate_order", {
       userId,

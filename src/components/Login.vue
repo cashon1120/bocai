@@ -16,8 +16,8 @@
           <input placeholder="登录密码" type="password" v-model="formData.pwd" />
         </div>
         <div v-if="!isLogin">
-          <input placeholder="银行卡号" v-model="formData.cardNumber" />
-          <input placeholder="真实姓名" v-model="formData.name" />
+          <input placeholder="银行卡号" type="number" v-model="formData.bank_num " />
+          <input placeholder="开户姓名" v-model="formData.account_name" />
         </div>
       </div>
       <button :disabled="disabled" @click="handleSubmit">{{isLogin ? '登录' : '注册'}}</button>
@@ -28,14 +28,14 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import { setBodyScroll, showMessage } from "../utils/utils";
+import { setBodyScroll, showMessage, luhnCheck } from "../utils/utils";
 import Loading from "./Loading.vue";
 
 interface IformData {
   account: string;
   pwd: string;
-  cardNumber: string;
-  name: string;
+  bank_num : string;
+  account_name: string;
 }
 
 @Component({
@@ -49,8 +49,8 @@ export default class Login extends Vue {
   formData: IformData = {
     account: "",
     pwd: "",
-    cardNumber: "",
-    name: ""
+    bank_num : "",
+    account_name: ""
   };
 
   @Emit()
@@ -62,8 +62,8 @@ export default class Login extends Vue {
     this.formData = {
       account: "",
       pwd: "",
-      cardNumber: "",
-      name: ""
+      bank_num : "",
+      account_name: ""
     };
   }
 
@@ -71,7 +71,7 @@ export default class Login extends Vue {
   // 提交
   public handleSubmit() {
     const {
-      formData: { account, pwd, cardNumber, name },
+      formData: { account, pwd, bank_num , account_name },
       isLogin
     } = this;
     if (account === "") {
@@ -82,29 +82,28 @@ export default class Login extends Vue {
       showMessage("请输入密码");
       return;
     }
-    // if (!isLogin) {
-    //   if (cardNumber === "") {
-    //     showMessage("请输入银行卡号");
-    //     return;
-    //   }
-    //   if (name === "") {
-    //     showMessage("请输入姓名");
-    //     return;
-    //   }
-    // }
+    if (!isLogin) {
+      if (!luhnCheck(bank_num)) {
+        showMessage("请输入正确的银行卡号");
+        return;
+      }
+      if (account_name === "") {
+        showMessage("请输入开启行姓名");
+        return;
+      }
+    }
     this.disabled = true;
     const params = {
       account,
-      pwd
-      // cardNumber,
-      // name
+      pwd,
+      bank_num ,
+      account_name
     };
-    // if (isLogin) {
-    //   delete params.cardNumber;
-    //   delete params.name;
-    // }
+    if (isLogin) {
+      delete params.bank_num;
+      delete params.account_name;
+    }
     const url = isLogin ? "/pc/user/login" : "/pc/user/register";
-    const defaultMsg = isLogin ? "登录" : "注册";
     this.$post(url, params)
       .then((res: any) => {
         this.disabled = false;
@@ -113,9 +112,9 @@ export default class Login extends Vue {
           this.submitSuccess(res.data);
           return;
         }
-        showMessage(`${defaultMsg}失败, ${res.msg}`);
+        showMessage(res.msg)
       })
-      .catche(() => {
+      .catch(() => {
         this.disabled = false;
       });
   }
@@ -131,7 +130,7 @@ $base: 75;
   .isReg {
     background: url(../assets/modal_bg_reg.png) no-repeat center center !important;
     background-size: 100% 100% !important;
-    min-height: 780rem / $base !important;
+    min-height: 810rem / $base !important;
   }
   .form-type {
     margin-bottom: 20rem / $base;

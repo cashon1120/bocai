@@ -21,10 +21,10 @@
       <div v-for="(obj, index) in typeArr" :key="index">
         <span
           v-for="item in obj"
-          :class="selectedType === item.value ? 'active' : null"
+          :class="selectedValue === item.value ? 'active' : null"
           :data-value="item.value"
           :key="item.value"
-          @click="handleSelectType(item.value)"
+          @click="handleSelectType(item.type, item.value)"
         >{{item.title}}</span>
       </div>
     </div>
@@ -32,7 +32,7 @@
     <div class="flex-container form-wrapper">
       <div>投注金额:</div>
       <div class="flex-1" style="margin-right: 20px;">
-        <input v-model="money" @keyup="countAll" />
+        <input v-model="price" @keyup="countAll" />
       </div>
       <div>合计:</div>
       <div class="flex-1">
@@ -47,42 +47,52 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Provide } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch, Provide } from "vue-property-decorator";
 import { showMessage } from "../utils/utils";
 import Loading from "./Loading.vue";
 
 @Component({
-  components:{
+  components: {
     Loading
   }
 })
 export default class SelectCheck extends Vue {
-  @Prop() private msg!: string;
+  @Prop() private data!: any;
   numberList: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   numberPlace: string[] = ["个位", "十位", "百位", "千位", "万位"];
   typeArr: any[] = [
     [
-      { title: "龙", value: 1 },
-      { title: "虎", value: 2 },
-      { title: "和", value: 3 }
+      { title: "龙", type: "龙虎", value: "龙" },
+      { title: "虎", type: "龙虎", value: "虎" },
+      { title: "和", type: "和", value: "和" }
     ],
     [
-      { title: "总和大", value: 4 },
-      { title: "总和小", value: 5 },
-      { title: "总和单", value: 6 },
-      { title: "总和双", value: 7 }
+      { title: "总和大", type: "大小", value: "大" },
+      { title: "总和小", type: "大小", value: "小" },
+      { title: "总和单", type: "单双", value: "单" },
+      { title: "总和双", type: "单双", value: "双" }
     ],
     [
-      { title: "前豹", value: 8 },
-      { title: "中豹", value: 9 },
-      { title: "后豹", value: 10 }
+      { title: "前豹", type: "豹子", value: "前" },
+      { title: "中豹", type: "豹子", value: "中" },
+      { title: "后豹", type: "豹子", value: "后" }
     ]
   ];
+
+  nextPeriods: string = "";
+
   selectedNumbers: any[] = [[], [], [], [], []];
-  selectedType: number = 0;
-  money: string = "";
+  selectedType: string = "";
+  selectedValue: string = "";
+  price: string = "";
   total: string = "";
-  disabled: boolean = false
+
+  disabled: boolean = false;
+
+  @Watch("data", { immediate: true, deep: true })
+  setAnimation(val: any) {
+    this.nextPeriods = val.number_periods;
+  }
 
   // 判断是否已经包含该数字
   public hasNumber(number: number, index: number) {
@@ -97,57 +107,99 @@ export default class SelectCheck extends Vue {
       const numberIndex = this.selectedNumbers[index].indexOf(number); // 获取包含数字索引
       this.selectedNumbers[index].splice(numberIndex, 1);
     }
-    this.selectedType = 0;
+    this.selectedType = "";
     this.countAll();
   }
 
   // 计算总金额
   public countAll() {
-    const { money } = this;
+    const { price } = this;
     let total = 0;
-    if (money) {
+    if (price) {
       this.selectedNumbers.forEach(item => {
-        total += item.length * parseInt(money);
+        total += item.length * parseInt(price);
       });
       this.total = total.toString();
     }
   }
 
   // 选择龙虎等事件
-  public handleSelectType(data: number) {
-    const { money } = this;
+  public handleSelectType(type: string, value: string) {
+    const { price } = this;
     this.selectedNumbers = [[], [], [], [], []];
-    this.selectedType = data;
-    this.total = money;
+    this.selectedType = type;
+    this.selectedValue = value;
+    this.total = price;
   }
 
   // 提交
   public handleSubmit() {
-    const { money, selectedNumbers, selectedType } = this;
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showMessage("请先登录");
+      return;
+    }
+    const {
+      price,
+      selectedNumbers,
+      selectedType,
+      selectedValue,
+      nextPeriods
+    } = this;
     let count = 0;
     selectedNumbers.forEach(item => {
-      count += item.length;
+      count = count + item.length;
     });
-    if (selectedType === 0 || count === 0) {
+
+    if (selectedType === "" && count === 0) {
       showMessage("请选择一个玩法");
       return;
     }
-    if (money === "") {
+    if (price === "") {
       showMessage("请输入投注金额");
       return;
     }
+
+    const type = selectedType ? selectedType : "数字";
+    const value = selectedType
+      ? selectedValue
+      : this.formatNumbers(selectedNumbers);
     this.disabled = true;
-    this.$post("/url", {
-      money,
-      selectedType
+    const params = {
+        number_periods: nextPeriods,
+        userId,
+        list: [
+          {
+            type,
+            price,
+            value
+          }
+        ]
+      }
+    this.$post("/pc/order/bet", {
+      jsonString: JSON.stringify(params)
     }).then((res: any) => {
       this.disabled = false;
-      if (res.code === 1) {
-        showMessage("成功");
+      if (res.success) {
+        showMessage(res.msg);
+        this.selectedNumbers = [[], [], [], [], []];
+        this.selectedType = "";
         return;
       }
-      showMessage("失败");
+      showMessage(res.msg);
     });
+  }
+
+  private formatNumbers(numbers: any[]) {
+    let numStrArray: any[] = [];
+    numbers.forEach(item => {
+      if (item.length === 0) {
+        numStrArray.push("NO");
+      } else {
+        numStrArray.push(item.join("-"));
+      }
+    });
+    return numStrArray.join(",");
   }
 }
 </script>
@@ -234,8 +286,9 @@ h3 {
   button {
     background: #4c1203;
     border: 0;
-    border-radius: 10rem / $base;
+    border-radius: 12rem / $base;
     color: #fff;
+    font-size: 28rem / $base;
     padding: 10rem / $base 30rem / $base;
     height: 60rem / $base;
   }

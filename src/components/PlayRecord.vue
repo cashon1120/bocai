@@ -1,16 +1,48 @@
 <template>
   <div class="modal">
-    <div class="modalContent introduce">
+    <div class="modalContent playRecord">
       <h3>下注记录</h3>
       <a class="close activeScale" @click="setState('playRecord')"></a>
+      <div class="top"></div>
       <div class="content">
         <div v-if="dataList.length > 0">
           <ul>
-            <li v-for="item in dataList" :key="item.id"></li>
+            <li class="flex-group" v-for="item in dataList" :key="item.id">
+              <div class="title">
+                <div class="flex-1">第{{item.number_periods}}期</div>
+                <div>
+                  <span :class="item.zj === '未中奖' ? null : 'active'">{{item.zj}}</span>
+                </div>
+              </div>
+              <div>
+                <div>玩法:</div>
+                <div class="flex-1">{{item.describe}}</div>
+              </div>
+              <div>
+                <div>内容:</div>
+                <div class="flex-1">
+                  <div v-if="item.describe === '数字投注'">
+                    <span v-for="(obj, index) in item.formatVaule" :key="index">
+                      <i v-if="obj.length>4">{{obj}}</i>
+                    </span>
+                  </div>
+                  <span v-else>{{item.value}}</span>
+                </div>
+              </div>
+              <div>
+                <div>金额:</div>
+                <div class="flex-1">{{item.money}}</div>
+              </div>
+              <div>
+                <div>时间:</div>
+                <div class="flex-1">{{item.publish_time}}</div>
+              </div>
+            </li>
           </ul>
         </div>
         <div class="nodata" v-else>暂无记录</div>
       </div>
+      <div class="bottom"></div>
     </div>
     <Loading v-show="loading" />
   </div>
@@ -39,10 +71,25 @@ export default class PlayIntroduce extends Vue {
 
   public getData() {
     this.loading = true;
-    this.$get("/pc/order/user_log", {})
+    const userId = localStorage.getItem("userId");
+    this.$get("/pc/order/user_log?userId=" + userId)
       .then((res: any) => {
         if (res.success) {
-          this.dataList = res.data;
+          const data = res.data;
+
+          for (let i = 0; i < data.length; i += 1) {
+            if (data[i].describe === "数字投注") {
+              const tempArr: any[] = [];
+              const arr = data[i].value.split(",");
+              tempArr[0] = `个位: ${arr[0]}`;
+              tempArr[1] = `十位: ${arr[1]}`;
+              tempArr[2] = `百位: ${arr[2]}`;
+              tempArr[3] = `千位: ${arr[3]}`;
+              tempArr[4] = `万位: ${arr[4]}`;
+              data[i].formatVaule = tempArr;
+            }
+          }
+          this.dataList = data;
         }
         this.loading = false;
       })
@@ -55,26 +102,69 @@ export default class PlayIntroduce extends Vue {
 
 <style lang="scss">
 $base: 75;
-.introduce {
-  background: url(../assets/play_introduce_bg.png) no-repeat;
-  background-size: 100% 100%;
-  height: 810rem / $base;
+.playRecord {
+  background: none !important;
   width: 100%;
+  .close {
+    top: 70rem / $base;
+  }
+  .top {
+    background: url(../assets/bg_top.png) no-repeat;
+    background-size: 100% 100%;
+    height: 110rem / $base;
+  }
+  .bottom {
+    background: url(../assets/bg_bottom.png) no-repeat;
+    background-size: 100% 100%;
+    height: 110rem / $base;
+  }
   box-sizing: border-box;
-  padding: 40rem / $base 55rem / $base 30rem / $base 55rem / $base;
+  padding-top: 0;
   h3 {
+    position: absolute;
+    width: 100%;
+    top: 110rem / $base;
     color: #d87f29;
     font-size: 30rem / $base;
   }
   .content {
     text-align: left;
-    height: 600rem / $base;
+    background: url(../assets/modal_bg_1.png);
+    background-size: 100% auto;
+    height: 900rem / $base;
     overflow: auto;
     font-size: 24rem / $base;
-    dl {
-      margin-bottom: 25rem / $base;
-      dd {
-        padding-left: 40rem / $base;
+    & > div {
+      padding: 0;
+    }
+    ul {
+      width: 80%;
+      margin: auto;
+      li {
+        margin-top: 20rem / $base;
+        font-size: 24rem / $base;
+        background: #311313;
+        border: 1px solid #461818;
+        span.active{
+          color: #f00;
+        }
+        i{
+          font-style: normal;
+          display: inline-block;
+          margin-right: 20rem / $base;
+        }
+        .title {
+          font-weight: bold;
+          border-bottom: 1px solid #461818;
+          padding: 10rem / $base 15rem / $base;
+        }
+        & > div {
+          padding: 7rem / $base 15rem / $base;
+          align-items: flex-start;
+          & > div:last-child {
+            padding-left: 15rem / $base;
+          }
+        }
       }
     }
   }

@@ -20,7 +20,7 @@
     <div class="flex-container top-info">
       <div class="flex-1">第{{currentPeriods.number_periods}}期</div>
       <div>
-        <a @click="getUserInfo">刷新金币</a>
+        <a v-if="userId" @click="getUserInfo">{{isGetInfo ? '更新中...' : '更新金币'}}</a>
         金币余额: {{userMoney}}
       </div>
     </div>
@@ -31,7 +31,7 @@
         <span>{{endTime}}</span>秒
       </div>
       <NumberGroup :data="currentPeriods" />
-      <SelectCheck />
+      <SelectCheck :data="nextPeriods" />
       <!--下注记录 按钮-->
       <div class="btn record activeScale" @click="handleTriggerModal('playRecord')"></div>
       <!--玩法介绍 按钮-->
@@ -42,7 +42,7 @@
     <HistoryRecord @set-data="handleSetNumberPeriods" />
 
     <!--获奖名单-->
-    <WinnerList />
+    <Winner />
 
     <!--弹窗 金币充值-->
     <Recharge v-if="showRecharge" :configList="configList" @set-state="handleTriggerModal" />
@@ -75,7 +75,7 @@ import { setBodyScroll, showMessage } from "./utils/utils";
 import NumberGroup from "./components/NumberGroup.vue";
 import SelectCheck from "./components/SelectCheck.vue";
 import HistoryRecord from "./components/HistoryRecord.vue";
-import WinnerList from "./components/WinnerList.vue";
+import Winner from "./components/Winner.vue";
 
 // 异步加载弹框组件
 const PlayIntroduce = () => import("./components/PlayIntroduce.vue");
@@ -89,12 +89,12 @@ const Login = () => import("./components/Login.vue");
     NumberGroup,
     SelectCheck,
     HistoryRecord,
-    WinnerList,
     PlayIntroduce,
     PlayRecord,
     Recharge,
     Exchange,
-    Login
+    Login,
+    Winner
   }
 })
 export default class App extends Vue {
@@ -103,16 +103,19 @@ export default class App extends Vue {
   showExchange: boolean = false;
   showLogin: boolean = false;
   showPlayRecord: boolean = false;
+  isGetInfo: boolean = false;
 
   userName: string = "";
   userId: number = 0;
   userMoney: number = 0;
 
   currentPeriods: any = {};
+  nextPeriods: any = {};
 
   isLoaded: boolean = false;
   configList: any[] = [];
-  endTime: number | string = '---';
+  endTime: number | string = "---";
+  endTimer: any = null;
 
   mounted() {
     this.getConfig();
@@ -144,6 +147,10 @@ export default class App extends Vue {
         bodyScrollStatus = this.showPlayIntroduce;
         break;
       case "playRecord":
+        if(!this.userId){
+          this.handleTriggerModal('login')
+          return
+        }
         this.showPlayRecord = !this.showPlayRecord;
         bodyScrollStatus = this.showPlayRecord;
         break;
@@ -152,32 +159,34 @@ export default class App extends Vue {
         bodyScrollStatus = this.showLogin;
         break;
     }
-    setBodyScroll(this.showRecharge);
+    setBodyScroll(bodyScrollStatus);
   }
 
   // 设置用户信息
   public handleSetUserInfo(res: any) {
     this.userName = res.account;
+    this.userId = res.id;
     localStorage.setItem("userName", res.account);
     localStorage.setItem("userId", res.id);
+    this.getUserInfo();
     this.handleTriggerModal("login");
   }
 
   // 倒计时
-  private endTimer(time: string) {
-    const now = new Date()
-    const endTime = new Date(time)
+  private setEndTime(time: string) {
+    clearInterval(this.endTimer);
+    const now = new Date();
+    const endTime = new Date(time.replace(/-/g, "/"));
     let timer: any = null;
-    let leftTimes = now.getTime() -endTime.getTime();
-    let seconds = 300 - parseInt(`${leftTimes / 1000 % 60}`, 10)
+    let leftTimes = now.getTime() - endTime.getTime();
+    let seconds = 300 - parseInt(`${(leftTimes / 1000) % 60}`, 10);
     const that = this;
     function timerFn() {
-      timer = setInterval(() => {
+      that.endTimer = setInterval(() => {
         seconds--;
         that.endTime = seconds;
         if (seconds === 0) {
-          clearInterval(timer);
-          showMessage('开奖中, 停止下注')
+          clearInterval(that.endTimer);
         }
       }, 1000);
     }
@@ -189,7 +198,10 @@ export default class App extends Vue {
     localStorage.removeItem("userName");
     localStorage.removeItem("userId");
     this.userName = "";
+    this.userId = 0;
+    this.userMoney = 0;
   }
+
   // 获取充值配置
   public getConfig() {
     this.$get("/pc/pay/money_config").then((res: any) => {
@@ -200,21 +212,33 @@ export default class App extends Vue {
   }
 
   // 获取用户信息
-  private getUserInfo() {
+  public getUserInfo() {
     const { userId } = this;
+    this.isGetInfo = true;
     if (userId) {
-      this.$get("/pc/user/get_info?userId=" + userId).then((res: any) => {
-        if (res.success) {
-          this.userMoney = res.data;
-        }
-      });
+      this.$get("/pc/user/get_info?userId=" + userId)
+        .then((res: any) => {
+          if (res.success) {
+            this.userMoney = res.data;
+          }
+          this.isGetInfo = false;
+        })
+        .catch(() => {
+          this.isGetInfo = false;
+        });
     }
   }
 
-  public handleSetNumberPeriods(time: string, data: any) {
+  public handleSetNumberPeriods(next: any, data: any) {
     if (this.currentPeriods.number_periods !== data.number_periods) {
       this.currentPeriods = data;
-      this.endTimer(time);
+    }
+    if (this.nextPeriods.number_periods !== next.number_periods) {
+      if (this.nextPeriods.number_periods) {
+        showMessage("开奖中, 停止下注");
+      }
+      this.nextPeriods = next;
+      this.setEndTime(next.publish_time);
     }
   }
 }
