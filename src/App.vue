@@ -51,10 +51,13 @@
     <PlayIntroduce v-if="showPlayIntroduce" @set-state="handleTriggerModal" />
 
     <!--弹窗 下注记录-->
-    <PlayRecord v-if="showPlayRecord" @set-state="handleTriggerModal" />
+    <PlayRecord
+      v-if="showPlayRecord"
+      @set-state="handleTriggerModal"
+    />
 
     <!--弹窗 金币兑换-->
-    <Exchange v-if="showExchange" @set-state="handleTriggerModal" />
+    <Exchange v-if="showExchange" @set-state="handleTriggerModal" @submit-success="handleSetUserInfo"/>
 
     <!--弹窗 登录注册-->
     <Login v-if="showLogin" @set-state="handleTriggerModal" @submit-success="handleSetUserInfo" />
@@ -77,12 +80,18 @@ import SelectCheck from "./components/SelectCheck.vue";
 import HistoryRecord from "./components/HistoryRecord.vue";
 import Winner from "./components/Winner.vue";
 
+import PlayIntroduce from "./components/PlayIntroduce.vue";
+import PlayRecord from "./components/PlayRecord.vue";
+import Exchange from "./components/Exchange.vue";
+import Recharge from "./components/Recharge.vue";
+import Login from "./components/Login.vue";
+
 // 异步加载弹框组件
-const PlayIntroduce = () => import("./components/PlayIntroduce.vue");
-const PlayRecord = () => import("./components/PlayRecord.vue");
-const Exchange = () => import("./components/Exchange.vue");
-const Recharge = () => import("./components/Recharge.vue");
-const Login = () => import("./components/Login.vue");
+// const PlayIntroduce = () => import("./components/PlayIntroduce.vue");
+// const PlayRecord = () => import("./components/PlayRecord.vue");
+// const Exchange = () => import("./components/Exchange.vue");
+// const Recharge = () => import("./components/Recharge.vue");
+// const Login = () => import("./components/Login.vue");
 
 @Component({
   components: {
@@ -147,9 +156,9 @@ export default class App extends Vue {
         bodyScrollStatus = this.showPlayIntroduce;
         break;
       case "playRecord":
-        if(!this.userId){
-          this.handleTriggerModal('login')
-          return
+        if (!this.userId) {
+          this.handleTriggerModal("login");
+          return;
         }
         this.showPlayRecord = !this.showPlayRecord;
         bodyScrollStatus = this.showPlayRecord;
@@ -163,23 +172,34 @@ export default class App extends Vue {
   }
 
   // 设置用户信息
-  public handleSetUserInfo(res: any) {
-    this.userName = res.account;
-    this.userId = res.id;
-    localStorage.setItem("userName", res.account);
-    localStorage.setItem("userId", res.id);
+  public handleSetUserInfo(res?: any) {
+    // 登录成功调用
+    console.log(res)
+    if (res) {
+      this.userName = res.account;
+      this.userId = res.id;
+      localStorage.setItem("userName", res.account);
+      localStorage.setItem("userId", res.id);
+      this.handleTriggerModal("login");
+    } else {
+      console.log(1)
+      this.handleTriggerModal("exchange");
+    }
+
+    // 兑换成功调用
+
     this.getUserInfo();
-    this.handleTriggerModal("login");
   }
 
   // 倒计时
   private setEndTime(time: string) {
     clearInterval(this.endTimer);
+    let endTime = new Date(time.replace(/-/g, "/"));
+    endTime.setMinutes(endTime.getMinutes() + 5);
+
     const now = new Date();
-    const endTime = new Date(time.replace(/-/g, "/"));
-    let timer: any = null;
-    let leftTimes = now.getTime() - endTime.getTime();
-    let seconds = 300 - parseInt(`${(leftTimes / 1000) % 60}`, 10);
+    let leftTimes = endTime.getTime() - now.getTime();
+    let seconds = parseInt(`${leftTimes / 1000}`, 10);
     const that = this;
     function timerFn() {
       that.endTimer = setInterval(() => {

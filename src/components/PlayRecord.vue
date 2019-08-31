@@ -11,7 +11,7 @@
               <div class="title">
                 <div class="flex-1">第{{item.number_periods}}期</div>
                 <div>
-                  <span :class="item.zj === '未中奖' ? null : 'active'">{{item.zj}}</span>
+                  <span :class="item.zj === '未中奖' || item.zj === '未开奖' ? null : 'active'">{{item.zj}}</span>
                 </div>
               </div>
               <div>

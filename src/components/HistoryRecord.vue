@@ -33,7 +33,7 @@ export default class HistoryRecord extends Vue {
       }
     });
     setTimeout(() => {
-       // this.getData()
+       this.getData()
     }, 3000);
   }
 }

@@ -25,6 +25,8 @@ html{
   background: url(./assets/body_bg.jpg) no-repeat;
   background-size: 100% 100%;
   padding-bottom: 15rem/$base;
+  max-width: 750px;
+  margin: auto;
 }
 
 body {
@@ -186,13 +188,14 @@ body {
         border: 0;
         border-bottom: 1px solid #6b3434;
         width: 100%;
+        box-sizing: border-box;
         background: none;
         color: #fff;
         outline: none;
         border-radius: 0;
-        margin-top: 60rem / $base;
-        height: 40rem / $base;
-        line-height: 40rem / $base;
+        height: 60rem / $base;
+        line-height: 60rem / $base;
+        padding-bottom: 10rem / $base;
         font-size: 30rem / $base;
       }
 
@@ -208,7 +211,7 @@ body {
       width: 70%;
       font-size: 28rem / $base;
       padding: 12rem / $base;
-      margin-top: 25rem/$base;
+      margin-top: 20rem/$base;
 
       &:active {
         background: #e18935;

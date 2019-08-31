@@ -12,7 +12,7 @@
           :key="item"
           @click="pushNumber(item, index)"
         >
-          <span :class="hasNumber(item, index) ? 'active' : null">{{item}}</span>
+          <span :class="hasNumber(item, index) ? 'active activeScale' : 'activeScale'">{{item}}</span>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
       <div v-for="(obj, index) in typeArr" :key="index">
         <span
           v-for="item in obj"
-          :class="selectedValue === item.value ? 'active' : null"
+          :class="selectedValue === item.value ? 'active activeScale' : 'activeScale'"
           :data-value="item.value"
           :key="item.value"
           @click="handleSelectType(item.type, item.value)"
@@ -32,7 +32,7 @@
     <div class="flex-container form-wrapper">
       <div>投注金额:</div>
       <div class="flex-1" style="margin-right: 20px;">
-        <input v-model="price" @keyup="countAll" />
+        <input v-model="price" type="number" @keyup="countAll" />
       </div>
       <div>合计:</div>
       <div class="flex-1">
@@ -108,18 +108,23 @@ export default class SelectCheck extends Vue {
       this.selectedNumbers[index].splice(numberIndex, 1);
     }
     this.selectedType = "";
+    this.selectedValue = "";
     this.countAll();
   }
 
   // 计算总金额
   public countAll() {
-    const { price } = this;
+    const { price, selectedType } = this;
     let total = 0;
     if (price) {
-      this.selectedNumbers.forEach(item => {
-        total += item.length * parseInt(price);
-      });
-      this.total = total.toString();
+      if (selectedType) {
+        this.total = price;
+      } else {
+        this.selectedNumbers.forEach(item => {
+          total += item.length * parseInt(price);
+        });
+        this.total = total.toString();
+      }
     }
   }
 
@@ -155,8 +160,8 @@ export default class SelectCheck extends Vue {
       showMessage("请选择一个玩法");
       return;
     }
-    if (price === "") {
-      showMessage("请输入投注金额");
+    if (price === "" || typeof price === 'number' && !isNaN(price)) {
+      showMessage("请输入正确的投注金额");
       return;
     }
 
@@ -166,16 +171,16 @@ export default class SelectCheck extends Vue {
       : this.formatNumbers(selectedNumbers);
     this.disabled = true;
     const params = {
-        number_periods: nextPeriods,
-        userId,
-        list: [
-          {
-            type,
-            price,
-            value
-          }
-        ]
-      }
+      number_periods: nextPeriods,
+      userId,
+      list: [
+        {
+          type,
+          price,
+          value
+        }
+      ]
+    };
     this.$post("/pc/order/bet", {
       jsonString: JSON.stringify(params)
     }).then((res: any) => {
@@ -184,6 +189,8 @@ export default class SelectCheck extends Vue {
         showMessage(res.msg);
         this.selectedNumbers = [[], [], [], [], []];
         this.selectedType = "";
+        this.total = "";
+        this.price = "";
         return;
       }
       showMessage(res.msg);

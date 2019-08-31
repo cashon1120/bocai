@@ -45,7 +45,9 @@ export default class Exchange extends Vue {
       showMessage("请先登录");
       return;
     }
-    const { formData: {gameAccount, money} } = this;
+    const {
+      formData: { gameAccount, money }
+    } = this;
     if (gameAccount === "") {
       showMessage("请输入账号");
       return;
@@ -63,15 +65,23 @@ export default class Exchange extends Vue {
       this.disabled = false;
       if (res.success) {
         showMessage(res.msg);
-        this.setState('exchange')
+        this.submitSuccess();
         return;
       }
       showMessage(res.msg);
     });
   }
+
+  @Emit()
+  submitSuccess() {}
 }
 </script>
 
 <style lang="scss">
 $base: 75;
+.exchange {
+  input {
+    margin-top: 60rem / $base;
+  }
+}
 </style>

@@ -66,6 +66,12 @@ export default class Recharge extends Vue {
   @Emit()
   setState(type: string) {}
 
+  mounted() {
+    if(this.$props.configList.length === 0){
+      showMessage('加载配置失败, 请刷新重试');
+    }
+  }
+
   public handleClose() {
     this.payType = "";
     this.payMoney = "";
