@@ -25,7 +25,7 @@
       </div>
       <div class="code" v-else>
         <span>￥{{payInfo.money}}</span>
-        <img :src="payInfo.imgUrl" alt="支付码" />
+        <img :src="payInfo.imgUrl" :onerror="showErrorMsg" alt="支付码" />
         <div>支付成功后，请手动刷新余额</div>
       </div>
     </div>
@@ -139,7 +139,10 @@ export default class Recharge extends Vue {
         this.showImg = true
       }
     });
+  }
 
+  public showErrorMsg(){
+    showMessage('图片加载失败')
   }
 }
 </script>
@@ -176,6 +179,7 @@ $base: 75;
     margin: auto;
     text-align: left;
     padding-left: 4%;
+    padding-bottom: 15rem / $base;
     li {
       width: 110rem / $base;
       height: 55rem / $base;
@@ -202,7 +206,8 @@ $base: 75;
       padding: 10rem / $base;
     }
     img {
-      width: 42%;
+      width: 300rem / $base;
+      height: 300rem / $base;
       margin-bottom: 10rem / $base;
     }
   }

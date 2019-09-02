@@ -13,7 +13,7 @@ axios.defaults.transformRequest = [function (data) {
     return ret
 }]
 
-axios.defaults.baseURL = '/api';
+axios.defaults.baseURL = '/game';
 // 请求超时的时间限制
 axios.defaults.timeout = 20000;
 // 开始设置请求 发起的拦截处理 config 代表发起请求的参数的实体

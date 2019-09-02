@@ -174,7 +174,6 @@ export default class App extends Vue {
   // 设置用户信息
   public handleSetUserInfo(res?: any) {
     // 登录成功调用
-    console.log(res)
     if (res) {
       this.userName = res.account;
       this.userId = res.id;
@@ -182,7 +181,6 @@ export default class App extends Vue {
       localStorage.setItem("userId", res.id);
       this.handleTriggerModal("login");
     } else {
-      console.log(1)
       this.handleTriggerModal("exchange");
     }
 

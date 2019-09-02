@@ -151,7 +151,7 @@ $base: 75;
   }
   .form-container {
     input {
-      margin-top: 40rem / $base !important;
+      margin-top: 30rem / $base !important;
     }
   }
 }

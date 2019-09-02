@@ -8,6 +8,7 @@ const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const isProduction = process.env.NODE_ENV !== 'development'
 module.exports = {
   productionSourceMap: false,
+  baseUrl: './', // 未修改前的配置为 '/'，
   chainWebpack: config => {
     // ============压缩图片 start============
     config.module
@@ -92,8 +93,8 @@ module.exports = {
   },
   devServer: {
     proxy: {
-      '/api': {
-        target: 'http://www.912ysh.cn/game/',
+      '/game': {
+        target: 'http://www.912ysh.cn/',
         ws: true,
         changeOrigin: true, //允许跨域
         pathRewrite: {

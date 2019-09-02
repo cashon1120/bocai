@@ -185,6 +185,7 @@ body {
       padding-top: 30rem / $base;
 
       input {
+        -webkit-appearance: none;
         border: 0;
         border-bottom: 1px solid #6b3434;
         width: 100%;
@@ -193,8 +194,7 @@ body {
         color: #fff;
         outline: none;
         border-radius: 0;
-        height: 60rem / $base;
-        line-height: 60rem / $base;
+        padding-top:  10rem / $base;
         padding-bottom: 10rem / $base;
         font-size: 30rem / $base;
       }
@@ -287,4 +287,17 @@ body {
 .nodata{
   padding-top: 30rem/$base !important;
   text-align: center !important;
+}
+
+input {
+  -webkit-appearance: none;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0)
+}
+input:disabled,input[disabled]{
+  -webkit-text-fill-color:#666;
+  border:1px solid #896e59;
+  color: #000;
+  opacity: 1!important;
+  background: #ead1bf;
+ // text-shadow: 1px 1px 1px rgba(255,255,255,.5)
 }

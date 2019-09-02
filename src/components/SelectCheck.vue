@@ -30,11 +30,11 @@
     </div>
 
     <div class="flex-container form-wrapper">
-      <div>投注金额:</div>
+      <div>投注金额: </div>
       <div class="flex-1" style="margin-right: 20px;">
         <input v-model="price" type="number" @keyup="countAll" />
       </div>
-      <div>合计:</div>
+      <div>合计: </div>
       <div class="flex-1">
         <input v-model="total" disabled />
       </div>
@@ -277,14 +277,13 @@ h3 {
   font-weight: bold;
   -webkit-text-stroke: 1px rgba(150, 73, 16, 0.6);
   input {
+    margin-left: 5rem / $base;
     width: 100%;
     border: 1px solid #964910;
     border-radius: 10rem / $base;
     outline: none;
-    height: 50rem / $base;
-    line-height: 52rem / $base;
     box-sizing: border-box;
-    padding: 0 10rem / $base;
+    padding: 12rem / $base 10rem / $base;
   }
 }
 .btn-container {
