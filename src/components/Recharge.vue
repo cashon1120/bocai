@@ -26,6 +26,8 @@
       <div class="code" v-else>
         <span>￥{{payInfo.money}}</span>
         <img :src="payInfo.imgUrl" :onerror="showErrorMsg" alt="支付码" />
+        <div v-if="payType === 'weixin'">截屏保存二维码，在微信扫一扫中打开识别付款</div>
+        <div v-else>截屏保存二维码，在支付宝扫一扫中打开识别付款</div>
         <div>支付成功后，请手动刷新余额</div>
       </div>
     </div>
@@ -206,8 +208,8 @@ $base: 75;
       padding: 10rem / $base;
     }
     img {
-      width: 300rem / $base;
-      height: 300rem / $base;
+      width: 260rem / $base;
+      height: 260rem / $base;
       margin-bottom: 10rem / $base;
     }
   }

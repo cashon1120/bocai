@@ -294,10 +294,8 @@ input {
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0)
 }
 input:disabled,input[disabled]{
-  -webkit-text-fill-color:#666;
   border:1px solid #896e59;
   color: #000;
   opacity: 1!important;
   background: #ead1bf;
- // text-shadow: 1px 1px 1px rgba(255,255,255,.5)
 }

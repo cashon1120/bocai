@@ -95,17 +95,63 @@
           玩家[ho**bo]获得金币
           <span>912.54</span>
         </li>
+        <li>
+          玩家[伤**绪]获得金币
+          <span>200</span>
+        </li>
+        <li>
+          玩家[Dr**m]获得金币
+          <span>98</span>
+        </li>
+        <li>
+          玩家[尾*戒]获得金币
+          <span>1200</span>
+        </li>
+        <li>
+          玩家[at**est ]获得金币
+          <span>80</span>
+        </li>
+        <li>
+          玩家[优* ]获得金币
+          <span>420</span>
+        </li>
+        <li>
+          玩家[燃**]获得金币
+          <span>59</span>
+        </li>
+        <li>
+          玩家[s**den]获得金币
+          <span>125</span>
+        </li>
+        <li>
+          玩家[L**as]获得金币
+          <span>32</span>
+        </li>
+        <li>
+          玩家[红**wom、]获得金币
+          <span>112</span>
+        </li>
+        <li>
+          玩家[R**ms]获得金币
+          <span>22</span>
+        </li>
+        <li>
+          玩家[se***不离]获得金币
+          <span>42</span>
+        </li>
+        <li>
+          玩家[台客**o]获得金币
+          <span>91</span>
+        </li>
       </ul>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
-export default class Winner extends Vue {
-
-}
+export default class Winner extends Vue {}
 </script>
 <style scoped lang="scss">
 $base: 75;
@@ -127,11 +173,11 @@ $base: 75;
     margin: auto;
     padding-bottom: 20rem / $base;
     ul {
-      animation: ulAnimation 25s linear 0s infinite;
+      animation: ulAnimation 35s linear 0s infinite;
     }
     @keyframes ulAnimation {
       from {
-        transform: translate3d(0, 35%, 0);
+        transform: translate3d(0, 27%, 0);
       }
 
       to {

@@ -21,7 +21,7 @@
       <div class="flex-1">第{{currentPeriods.number_periods}}期</div>
       <div>
         <a v-if="userId" @click="getUserInfo">{{isGetInfo ? '更新中...' : '更新金币'}}</a>
-        金币余额: {{userMoney}}
+        金币余额: {{userInfo.money}}
       </div>
     </div>
     <!--抽奖-->
@@ -30,7 +30,7 @@
         倒计时
         <span>{{endTime}}</span>秒
       </div>
-      <NumberGroup :data="currentPeriods" />
+      <NumberGroup :data="currentPeriods" :autoScroll="autoScroll" />
       <SelectCheck :data="nextPeriods" />
       <!--下注记录 按钮-->
       <div class="btn record activeScale" @click="handleTriggerModal('playRecord')"></div>
@@ -51,13 +51,15 @@
     <PlayIntroduce v-if="showPlayIntroduce" @set-state="handleTriggerModal" />
 
     <!--弹窗 下注记录-->
-    <PlayRecord
-      v-if="showPlayRecord"
-      @set-state="handleTriggerModal"
-    />
+    <PlayRecord v-if="showPlayRecord" @set-state="handleTriggerModal" />
 
     <!--弹窗 金币兑换-->
-    <Exchange v-if="showExchange" @set-state="handleTriggerModal" @submit-success="handleSetUserInfo"/>
+    <Exchange
+      v-if="showExchange"
+      :userInfo="userInfo"
+      @set-state="handleTriggerModal"
+      @submit-success="handleSetUserInfo"
+    />
 
     <!--弹窗 登录注册-->
     <Login v-if="showLogin" @set-state="handleTriggerModal" @submit-success="handleSetUserInfo" />
@@ -113,10 +115,12 @@ export default class App extends Vue {
   showLogin: boolean = false;
   showPlayRecord: boolean = false;
   isGetInfo: boolean = false;
+  autoScroll: boolean = false;
 
   userName: string = "";
   userId: number = 0;
-  userMoney: number = 0;
+
+  userInfo = {};
 
   currentPeriods: any = {};
   nextPeriods: any = {};
@@ -144,10 +148,18 @@ export default class App extends Vue {
     let bodyScrollStatus: boolean = false;
     switch (type) {
       case "recharge":
+        if (!this.userId) {
+          showMessage("请先登录");
+          return;
+        }
         this.showRecharge = !this.showRecharge;
         bodyScrollStatus = this.showRecharge;
         break;
       case "exchange":
+        if (!this.userId) {
+          showMessage("请先登录");
+          return;
+        }
         this.showExchange = !this.showExchange;
         bodyScrollStatus = this.showExchange;
         break;
@@ -157,7 +169,7 @@ export default class App extends Vue {
         break;
       case "playRecord":
         if (!this.userId) {
-          this.handleTriggerModal("login");
+          showMessage("请先登录");
           return;
         }
         this.showPlayRecord = !this.showPlayRecord;
@@ -192,18 +204,32 @@ export default class App extends Vue {
   // 倒计时
   private setEndTime(time: string) {
     clearInterval(this.endTimer);
-    let endTime = new Date(time.replace(/-/g, "/"));
-    endTime.setMinutes(endTime.getMinutes() + 5);
-
+    
+    this.autoScroll = false;
+    const endTime = new Date(time.replace(/-/g, "/"));
+    const ADD_MINUTES = 5 // 开奖周期, 正常情况下5分钟一期, 在发布时间上加上该分钟数
     const now = new Date();
+    endTime.setMinutes(endTime.getMinutes() + ADD_MINUTES);
+
     let leftTimes = endTime.getTime() - now.getTime();
     let seconds = parseInt(`${leftTimes / 1000}`, 10);
+    // 首次进入时间小于10秒直接提示
+    if (seconds <= 10) {
+      this.autoScroll = true;
+      showMessage("开奖中, 停止下注");
+      return;
+    }
     const that = this;
     function timerFn() {
       that.endTimer = setInterval(() => {
         seconds--;
         that.endTime = seconds;
-        if (seconds === 0) {
+        if (seconds <= 10) {
+          that.autoScroll = true;
+          showMessage("开奖中, 停止下注");
+        }
+        if (seconds <= 0) {
+          that.endTime = 0;
           clearInterval(that.endTimer);
         }
       }, 1000);
@@ -217,7 +243,6 @@ export default class App extends Vue {
     localStorage.removeItem("userId");
     this.userName = "";
     this.userId = 0;
-    this.userMoney = 0;
   }
 
   // 获取充值配置
@@ -237,7 +262,7 @@ export default class App extends Vue {
       this.$get("/pc/user/get_info?userId=" + userId)
         .then((res: any) => {
           if (res.success) {
-            this.userMoney = res.data;
+            this.userInfo = res.data;
           }
           this.isGetInfo = false;
         })
@@ -249,12 +274,12 @@ export default class App extends Vue {
 
   public handleSetNumberPeriods(next: any, data: any) {
     if (this.currentPeriods.number_periods !== data.number_periods) {
+      this.autoScroll = false;
       this.currentPeriods = data;
     }
+
+    // 获取下一期信息(发布时间, 开奖期数)
     if (this.nextPeriods.number_periods !== next.number_periods) {
-      if (this.nextPeriods.number_periods) {
-        showMessage("开奖中, 停止下注");
-      }
       this.nextPeriods = next;
       this.setEndTime(next.publish_time);
     }

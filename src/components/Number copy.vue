@@ -5,8 +5,9 @@
       <transition>
         <ul
           class="number"
+          ref="numberUrl"
           id="numberUrl"
-          :style="{transform: `translate3d(0, ${endTop}px, 0)`}"
+          :style="{transition: `all ${scrollTime}s ${scrollType} ${numberIndex}s`,transform: `translate3d(0, ${endTop}px, 0)`}"
         >
           <li
             :style="{height:scrollHeight +'px'}"
@@ -22,7 +23,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { randomNum } from "../utils/utils";
 
 @Component
 export default class Number extends Vue {
@@ -34,19 +34,24 @@ export default class Number extends Vue {
   hideboxDom: any = null; // 用来获取高度,以设置 scrollHeight
   timer: any = null;
   scrollHeight: number = 0;
-  isFirst: boolean = true
 
   endTop: number = 0;
-  endNumber: number = 0;
+  lastEndTop: number | undefined = undefined;
 
   isAuto: boolean = false;
+  isAutoScrooling: boolean = false;
+  numberUrl: any = null;
   numberIndex: number = 0;
+  autoScrollClass: string = "autoScroll";
 
-  scrollTimer: any = null;
+  scrollTime: number = 2;
+  scrollType: string = "ease-in-out";
 
   mounted() {
     this.setScrollHeight();
     this.numberIndex = this.$props.index / 3.5;
+    this.numberUrl = document.getElementById("numberUrl");
+    this.numberUrl.addEventListener('webkitAnimationEnd', this.setAutoScroll);
     const that = this;
     window.addEventListener("resize", this.setScrollHeight);
   }
@@ -58,49 +63,24 @@ export default class Number extends Vue {
     setTimeout(() => {
       _that.hideboxDom = _that.$refs.hidebox;
       _that.scrollHeight = _that.hideboxDom.offsetHeight;
-      _that.setScroll();
+      _that.setAnimation(_that.$props.toNumber);
     }, 500);
   }
 
   @Watch("toNumber", { immediate: true, deep: true })
-  setEndNumber(val: number) {
+  setAnimation(val: number) {
     if (val >= 0) {
-      this.endNumber = val;
-      this.isAuto = false
-      if (this.scrollHeight > 0 && this.isFirst) {
-        this.isFirst = false
-        this.setScroll();
-      }
+      this.endTop = -val * this.scrollHeight;
     }
   }
 
   @Watch("autoScroll", { immediate: true, deep: true })
   handleAutoScroll(val: boolean) {
-     this.isAuto = val;
-    if (val) {
-      this.setScroll();
-    }
+    this.isAuto = val;
   }
 
-  public setScroll() {
-    clearInterval(this.scrollTimer);
-    const radom = randomNum(5, 10);
-    const { endNumber, isAuto } = this;
-    let toEnd = -endNumber * this.scrollHeight;
-    if (isAuto) {
-      toEnd = -10 * this.scrollHeight;
-    }
-    this.scrollTimer = setInterval(() => {
-      this.endTop -= 4;
-      if (this.endTop <= toEnd) {
-        this.endTop = toEnd;
-        clearInterval(this.scrollTimer);
-        if (this.isAuto) {
-          this.endTop = 0;
-        }
-        this.setScroll();
-      }
-    }, radom);
+  public setAutoScroll() {
+
   }
 }
 </script>
